@@ -1,0 +1,224 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* MAIN BACKGROUND */
+.kyc-container {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #1e1b4b, #020617);
+  color: white;
+  padding: 20px;
+}
+
+/* HEADER (optional nice title spacing) */
+.kyc-container h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* FILTER SECTION */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  outline: none;
+  min-width: 180px;
+}
+
+.filters input::placeholder {
+  color: #94a3b8;
+}
+
+/* TABLE */
+.kyc-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.kyc-table th,
+.kyc-table td {
+  padding: 12px;
+  border-bottom: 1px solid #334155;
+  text-align: left;
+}
+
+.kyc-table th {
+  background: #0f172a;
+  font-weight: 600;
+}
+
+/* STATUS BADGES */
+.status {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.status.approved {
+  color: #22c55e;
+}
+
+.status.rejected {
+  color: #ef4444;
+}
+
+.status.pending {
+  color: #f59e0b;
+}
+
+/* ACTION MENU */
+.menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.icon {
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.icon:hover {
+  background: #334155;
+}
+
+/* DROPDOWN MENU */
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 28px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-width: 150px;
+  z-index: 9999;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  overflow: hidden;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+.dropdown div {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.dropdown div:hover {
+  background: #1e293b;
+}
+
+/* MODAL BACKDROP */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+/* MODAL BOX */
+.modal-box {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* DOCUMENT ROW */
+.doc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  gap: 10px;
+}
+
+/* BUTTONS */
+button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: #334155;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 13px;
+}
+
+button:hover {
+  background: #475569;
+}
+
+/* SIMPLE ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.combo-wrapper {
+  position: relative;
+}
+
+.combo-input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  min-width: 200px;
+}
+
+.combo-dropdown {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  width: 100%;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.combo-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.combo-item:hover {
+  background: #1e293b;
+}
+
+.combo-empty {
+  padding: 10px;
+  color: #94a3b8;
+}
