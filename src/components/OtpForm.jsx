@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { verifyOtp } from "../services/authService";
 
-const OtpForm = () => {
+const OtpForm = ({ otpType, goToLogin }) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputsRef = useRef([]);
   const navigate = useNavigate();
@@ -31,19 +31,27 @@ const OtpForm = () => {
       return;
     }
 
+
+    if (otpType === "REGISTER") {
+      alert("Registration Successful ✅");
+      goToLogin(); 
+      return;
+    }
+
+   
     const res = await verifyOtp(finalOtp);
 
     if (res.success) {
       localStorage.setItem("token", res.token);
       localStorage.setItem("role", res.role);
 
-     if (res.role === "ADMIN") {
-  navigate("/dashboard", { replace: true });
-} else if (res.role === "RM") {
-  navigate("/kyc", { replace: true });
-} else if (res.role === "LEGALTEAM") {
-  navigate("/analytics", { replace: true });
-}
+      if (res.role === "ADMIN") {
+        navigate("/dashboard", { replace: true });
+      } else if (res.role === "RM") {
+        navigate("/kyc", { replace: true });
+      } else if (res.role === "LEGALTEAM") {
+        navigate("/analytics", { replace: true });
+      }
     } else {
       alert("Invalid OTP");
     }
@@ -51,7 +59,7 @@ const OtpForm = () => {
 
   return (
     <>
-      <h2>Enter OTP</h2>
+      <h2>{otpType === "REGISTER" ? "Register OTP" : "Login OTP"}</h2>
 
       <div className="otp-container">
         {otp.map((digit, i) => (

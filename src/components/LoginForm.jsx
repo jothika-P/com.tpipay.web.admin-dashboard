@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { loginUser } from "../services/authService";
 
-const LoginForm = ({ onSuccess }) => {
+const LoginForm = ({ onSuccess, onSignup }) => {
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -17,8 +17,7 @@ const LoginForm = ({ onSuccess }) => {
 
     if (res.success) {
       localStorage.setItem("tempRole", res.tempRole);
-
-      onSuccess(); // 🔥 SWITCH TO OTP (NO ROUTE CHANGE)
+      onSuccess();
     } else {
       alert("Invalid login");
     }
@@ -48,6 +47,13 @@ const LoginForm = ({ onSuccess }) => {
       </div>
 
       <button onClick={handleSubmit}>Login</button>
+
+      <p className="signup-text">
+        New user?{" "}
+        <span className="link" onClick={onSignup}>
+          Create Account
+        </span>
+      </p>
     </>
   );
 };

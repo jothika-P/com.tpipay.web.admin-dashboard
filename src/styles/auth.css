@@ -312,3 +312,63 @@ body {
   border-color: #8b5cf6;
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25);
 }
+/* ========================= FORM ========================= */
+.auth-box {
+  width: 100%;           /* 🔥 FULL WIDTH */
+  max-width: 340px;      /* 🔥 CONTROL SIZE */
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-box h2 {
+  text-align: center;
+  font-size: 26px;
+  color: #0f172a;
+}
+
+/* ========================= INPUTS ========================= */
+.auth-box input,
+.auth-box select {
+  width: 100%;               /* 🔥 IMPORTANT */
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  background: #f8fafc;
+}
+
+.auth-box input:focus,
+.auth-box select:focus {
+  border-color: #8b5cf6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+/* ========================= BUTTON ========================= */
+.auth-box button {
+  padding: 14px;
+  background: linear-gradient(90deg, #7c3aed, #5b21b6);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.auth-box button:hover {
+  transform: translateY(-2px);
+}
+
+/* ========================= GRID ========================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%; /* 🔥 FIX */
+}
+
+.full {
+  grid-column: span 2;
+}
