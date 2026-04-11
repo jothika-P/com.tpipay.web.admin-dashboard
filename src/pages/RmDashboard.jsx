@@ -1,20 +1,13 @@
-import "../styles/Dashboard.css";
+import MainLayout from "../layout/MainLayout";
 
 const RmDashboard = () => {
   return (
-    <div className="dashboard">
-      <div className="sidebar">
-        <h2>RM</h2>
-        <ul>
-          <li>My Merchants</li>
-          <li>KYC Status</li>
-        </ul>
-      </div>
-
-      <div className="main-content">
+    <MainLayout>
+      <div>
         <h1>RM Dashboard</h1>
+        <p>Welcome RM user 👋</p>
       </div>
-    </div>
+    </MainLayout>
   );
 };
 

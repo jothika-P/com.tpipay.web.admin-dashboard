@@ -17,43 +17,51 @@ const OtpForm = ({ otpType, goToLogin }) => {
     if (value && index < 5) {
       inputsRef.current[index + 1]?.focus();
     }
-
-    if (newOtp.every((d) => d !== "")) {
-      handleSubmit(newOtp.join(""));
-    }
   };
 
-  const handleSubmit = async (otpValue) => {
-    const finalOtp = otpValue || otp.join("");
+  const handleSubmit = async () => {
+    const finalOtp = otp.join("");
 
     if (finalOtp.length !== 6) {
-      alert("Enter valid OTP");
+      alert("Enter valid 6 digit OTP");
       return;
     }
-
 
     if (otpType === "REGISTER") {
-      alert("Registration Successful ✅");
-      goToLogin(); 
+      alert("Registration Successful");
+      goToLogin();
       return;
     }
 
-   
     const res = await verifyOtp(finalOtp);
 
-    if (res.success) {
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("role", res.role);
-
-      if (res.role === "ADMIN") {
-        navigate("/dashboard", { replace: true });
-      } else if (res.role === "RM") {
-        navigate("/kyc", { replace: true });
-      } else if (res.role === "LEGALTEAM") {
-        navigate("/analytics", { replace: true });
-      }
-    } else {
+    if (!res?.success) {
       alert("Invalid OTP");
+      return;
+    }
+
+    const role = (res.role || "").toUpperCase();
+
+    // store login info
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("role", role);
+
+    // ✅ ROLE BASED NAVIGATION (FIXED)
+    switch (role) {
+      case "ADMIN":
+        navigate("/dashboard", { replace: true });
+        break;
+
+      case "RM":
+        navigate("/rm", { replace: true });
+        break;
+
+      case "LEGALTEAM":
+        navigate("/analytics", { replace: true });
+        break;
+
+      default:
+        navigate("/");
     }
   };
 
@@ -73,7 +81,7 @@ const OtpForm = ({ otpType, goToLogin }) => {
         ))}
       </div>
 
-      <button onClick={() => handleSubmit()}>Verify</button>
+      <button onClick={handleSubmit}>Verify</button>
     </>
   );
 };

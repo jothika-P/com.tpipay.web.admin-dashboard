@@ -5,55 +5,78 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import KYC from "./pages/KYC";
 import Analytics from "./pages/Analytics";
+import RmDashboard from "./pages/RmDashboard";
+
 import MainLayout from "./layout/MainLayout";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 export default function AppRoutes() {
   return (
     <Routes>
 
-      {/* AUTH PAGE */}
+      {/* AUTH */}
       <Route path="/" element={<Auth />} />
 
-      {/* PROTECTED APP PAGES */}
+      {/* ADMIN */}
       <Route
         path="/dashboard"
         element={
-          <MainLayout>
-            <Dashboard />
-          </MainLayout>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <MainLayout>
+              <Dashboard />
+            </MainLayout>
+          </ProtectedRoute>
         }
       />
 
+      {/* RM */}
+      <Route
+        path="/rm"
+        element={
+          <ProtectedRoute allowedRoles={["RM"]}>
+            <RmDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* USERS */}
       <Route
         path="/users"
         element={
-          <MainLayout>
-            <Users />
-          </MainLayout>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <MainLayout>
+              <Users />
+            </MainLayout>
+          </ProtectedRoute>
         }
       />
 
+      {/* KYC */}
       <Route
         path="/kyc"
         element={
-          <MainLayout>
-            <KYC />
-          </MainLayout>
+          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+            <MainLayout>
+              <KYC />
+            </MainLayout>
+          </ProtectedRoute>
         }
       />
 
+      {/* ANALYTICS */}
       <Route
         path="/analytics"
         element={
-          <MainLayout>
-            <Analytics />
-          </MainLayout>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <MainLayout>
+              <Analytics />
+            </MainLayout>
+          </ProtectedRoute>
         }
       />
 
-      {/* FIX: any wrong URL redirects */}
+      {/* FALLBACK */}
       <Route path="*" element={<Navigate to="/" />} />
-
     </Routes>
   );
 }

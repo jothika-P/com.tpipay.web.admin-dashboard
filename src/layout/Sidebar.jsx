@@ -12,13 +12,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { label: "Analytics", path: "/analytics", icon: "📊" },
   ];
 
-  // ✅ LOGOUT FUNCTION
+  // LOGOUT FUNCTION
   const handleLogout = () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
     if (confirmLogout) {
-      localStorage.removeItem("token"); // remove auth
+      localStorage.removeItem("token");
       sessionStorage.clear();
-      navigate("/login"); // redirect
+      navigate("/login");
     }
   };
 
@@ -47,6 +47,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               key={item.path}
               to={item.path}
               className={`sidebar-link ${isActive ? "active" : ""}`}
+              onClick={() => setSidebarOpen(false)}   // ✅ FIX ADDED
             >
               <span className="icon">{item.icon}</span>
               {item.label}
@@ -55,7 +56,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         })}
       </div>
 
-      {/* ✅ LOGOUT BUTTON */}
+      {/* FOOTER */}
       <div className="sidebar-footer">
         <button className="logout-btn" onClick={handleLogout}>
           <span className="icon">🚪</span>

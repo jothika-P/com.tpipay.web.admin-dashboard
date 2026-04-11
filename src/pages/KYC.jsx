@@ -22,8 +22,13 @@ export default function Kyc() {
   const [data, setData] = useState(initialData);
   const [openMenu, setOpenMenu] = useState(null);
 
-  // DRAWER STATE
-  const [drawer, setDrawer] = useState(null); // "details" | "kyc"
+  /* ================= SEARCH + FILTER ================= */
+  const [searchBusiness, setSearchBusiness] = useState("");
+  const [searchRM, setSearchRM] = useState("");
+  const [rmFilter, setRmFilter] = useState("All");
+
+  /* ================= DRAWER ================= */
+  const [drawer, setDrawer] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
 
   const [files, setFiles] = useState({
@@ -69,10 +74,59 @@ export default function Kyc() {
     setFiles({ aadhaar: null, pan: null, gst: null });
   };
 
+  /* ================= FILTER LOGIC ================= */
+  const rmList = ["All", ...new Set(data.map((d) => d.rm))];
+
+  const filteredData = data.filter((item) => {
+    const matchRM =
+      rmFilter === "All" || item.rm === rmFilter;
+
+    const matchBusiness =
+      item.business
+        .toLowerCase()
+        .includes(searchBusiness.toLowerCase());
+
+    const matchRMSearch =
+      item.rm.toLowerCase().includes(searchRM.toLowerCase());
+
+    return matchRM && matchBusiness && matchRMSearch;
+  });
+
   return (
     <div className="kyc-container">
       <h2 className="title">KYC Management</h2>
 
+      {/* ================= SEARCH + FILTER BAR ================= */}
+      <div className="kyc-filters">
+
+        <input
+          type="text"
+          placeholder="Search business..."
+          value={searchBusiness}
+          onChange={(e) => setSearchBusiness(e.target.value)}
+        />
+
+        <input
+          type="text"
+          placeholder="Search RM..."
+          value={searchRM}
+          onChange={(e) => setSearchRM(e.target.value)}
+        />
+
+        <select
+          value={rmFilter}
+          onChange={(e) => setRmFilter(e.target.value)}
+        >
+          {rmList.map((rm) => (
+            <option key={rm} value={rm}>
+              {rm}
+            </option>
+          ))}
+        </select>
+
+      </div>
+
+      {/* ================= TABLE ================= */}
       <table className="kyc-table">
         <thead>
           <tr>
@@ -85,7 +139,7 @@ export default function Kyc() {
         </thead>
 
         <tbody>
-          {data.map((row) => (
+          {filteredData.map((row) => (
             <tr key={row.id}>
               <td>{row.business}</td>
               <td>{row.rm}</td>
@@ -116,21 +170,11 @@ export default function Kyc() {
 
                     {row.status === "PENDING" && (
                       <>
-                        <button
-                          className="approve"
-                          onClick={() =>
-                            updateStatus(row.id, "APPROVED")
-                          }
-                        >
+                        <button onClick={() => updateStatus(row.id, "APPROVED")}>
                           ✔ Approve
                         </button>
 
-                        <button
-                          className="reject"
-                          onClick={() =>
-                            updateStatus(row.id, "REJECTED")
-                          }
-                        >
+                        <button onClick={() => updateStatus(row.id, "REJECTED")}>
                           ✖ Reject
                         </button>
                       </>
@@ -146,10 +190,9 @@ export default function Kyc() {
       {/* ================= BACKDROP ================= */}
       {drawer && <div className="backdrop" onClick={closeDrawer}></div>}
 
-      {/* ================= RIGHT DRAWER ================= */}
+      {/* ================= DRAWER ================= */}
       <div className={`drawer ${drawer ? "open" : ""}`}>
 
-        {/* DETAILS */}
         {drawer === "details" && selectedRow && (
           <div>
             <h3>Business Details</h3>
@@ -162,7 +205,6 @@ export default function Kyc() {
           </div>
         )}
 
-        {/* KYC */}
         {drawer === "kyc" && selectedRow && (
           <div>
             <h3>KYC Upload</h3>
@@ -197,6 +239,7 @@ export default function Kyc() {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

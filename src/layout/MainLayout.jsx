@@ -1,22 +1,36 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/mainLayout.css";
 import logo from "../assets/logo.png";
 
 export default function MainLayout({ children }) {
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navigate = useNavigate();
 
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef();
 
-  const menu = [
-    { label: "Users", path: "/users", icon: "👥" },
-    { label: "KYC", path: "/kyc", icon: "🛡️" },
-    { label: "Analytics", path: "/analytics", icon: "📊" },
-  ];
+  // ✅ ROLE ADDED (ONLY CHANGE)
+  const role = localStorage.getItem("role");
 
-  // close profile dropdown
+  // ✅ ROLE BASED MENU (ONLY CHANGE)
+  const menu =
+    role === "ADMIN"
+      ? [
+          { label: "Users", path: "/users", icon: "👥" },
+          { label: "KYC", path: "/kyc", icon: "🛡️" },
+          { label: "Analytics", path: "/analytics", icon: "📊" },
+        ]
+      : role === "RM"
+      ? [
+          { label: "KYC", path: "/kyc", icon: "🛡️" },
+          { label: "Analytics", path: "/analytics", icon: "📊" },
+        ]
+      : [
+          { label: "Analytics", path: "/analytics", icon: "📊" },
+        ];
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -27,12 +41,25 @@ export default function MainLayout({ children }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // PROFILE ACTION
+  const handleProfile = () => {
+    setOpen(false);
+    navigate("/profile");
+  };
+
+  // LOGOUT ACTION
+  const handleLogout = () => {
+    setOpen(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("role"); // optional but better
+    navigate("/");
+  };
+
   return (
     <div className="layout">
+
       {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-        
-        {/* CLOSE BUTTON */}
         <div className="sidebar-header">
           <img src={logo} alt="logo" />
           <button className="close-btn" onClick={() => setSidebarOpen(false)}>
@@ -43,6 +70,7 @@ export default function MainLayout({ children }) {
         <div className="sidebar-menu">
           {menu.map((item) => {
             const isActive = location.pathname === item.path;
+
             return (
               <Link
                 key={item.path}
@@ -59,16 +87,15 @@ export default function MainLayout({ children }) {
 
       {/* MAIN */}
       <div className="main">
+
         {/* HEADER */}
         <div className="header">
-          {/* MENU BUTTON */}
           <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
             ☰
           </button>
 
           <h3 className="title">Admin Panel</h3>
 
-          {/* PROFILE */}
           <div className="profile-container" ref={dropdownRef}>
             <div className="profile" onClick={() => setOpen(!open)}>
               <i className="bi bi-person-circle"></i>
@@ -76,9 +103,17 @@ export default function MainLayout({ children }) {
 
             {open && (
               <div className="dropdown">
-                <div className="dropdown-item">View Profile</div>
+
+                <div className="dropdown-item" onClick={handleProfile}>
+                  View Profile
+                </div>
+
                 <div className="dropdown-divider"></div>
-                <div className="dropdown-item logout">Logout</div>
+
+                <div className="dropdown-item logout" onClick={handleLogout}>
+                  Logout
+                </div>
+
               </div>
             )}
           </div>
@@ -86,6 +121,12 @@ export default function MainLayout({ children }) {
 
         {/* CONTENT */}
         <div className="content">{children}</div>
+
+        {/* FOOTER */}
+        <div className="footer">
+          © {new Date().getFullYear()} Admin Panel • ISO 27001 Compliant • All Rights Reserved
+        </div>
+
       </div>
     </div>
   );
