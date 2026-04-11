@@ -11,12 +11,11 @@ export default function MainLayout({ children }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef();
 
-  // ✅ ROLE ADDED (ONLY CHANGE)
-  const role = localStorage.getItem("role");
+  const role = (localStorage.getItem("role") || "").toUpperCase();
 
-  // ✅ ROLE BASED MENU (ONLY CHANGE)
+  // ✅ MENU BASED ON ROLE
   const menu =
-    role === "ADMIN"
+    role === "ADMIN" || role === "LEGALTEAM"
       ? [
           { label: "Users", path: "/users", icon: "👥" },
           { label: "KYC", path: "/kyc", icon: "🛡️" },
@@ -27,9 +26,21 @@ export default function MainLayout({ children }) {
           { label: "KYC", path: "/kyc", icon: "🛡️" },
           { label: "Analytics", path: "/analytics", icon: "📊" },
         ]
-      : [
-          { label: "Analytics", path: "/analytics", icon: "📊" },
-        ];
+      : [];
+
+  // ✅ DYNAMIC TITLE
+  const getTitle = () => {
+    switch (role) {
+      case "ADMIN":
+        return "Admin Panel";
+      case "RM":
+        return "RM Dashboard";
+      case "LEGALTEAM":
+        return "Legal Team Dashboard";
+      default:
+        return "Dashboard";
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -41,17 +52,8 @@ export default function MainLayout({ children }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // PROFILE ACTION
-  const handleProfile = () => {
-    setOpen(false);
-    navigate("/profile");
-  };
-
-  // LOGOUT ACTION
   const handleLogout = () => {
-    setOpen(false);
-    localStorage.removeItem("token");
-    localStorage.removeItem("role"); // optional but better
+    localStorage.clear();
     navigate("/");
   };
 
@@ -60,29 +62,43 @@ export default function MainLayout({ children }) {
 
       {/* SIDEBAR */}
       <div className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-        <div className="sidebar-header">
-          <img src={logo} alt="logo" />
-          <button className="close-btn" onClick={() => setSidebarOpen(false)}>
-            ✖
-          </button>
+
+        {/* TOP SECTION */}
+        <div className="sidebar-top">
+
+          <div className="sidebar-header">
+            <img src={logo} alt="logo" />
+            <button className="close-btn" onClick={() => setSidebarOpen(false)}>
+              ✖
+            </button>
+          </div>
+
+          <div className="sidebar-menu">
+            {menu.map((item) => {
+              const isActive = location.pathname === item.path;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`sidebar-link ${isActive ? "active" : ""}`}
+                >
+                  <span className="icon">{item.icon}</span>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+
         </div>
 
-        <div className="sidebar-menu">
-          {menu.map((item) => {
-            const isActive = location.pathname === item.path;
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`sidebar-link ${isActive ? "active" : ""}`}
-              >
-                <span className="icon">{item.icon}</span>
-                {item.label}
-              </Link>
-            );
-          })}
+        {/* BOTTOM SECTION (FIXED LOGOUT 🔥) */}
+        <div className="sidebar-bottom">
+          <div className="sidebar-link logout" onClick={handleLogout}>
+            🚪 Logout
+          </div>
         </div>
+
       </div>
 
       {/* MAIN */}
@@ -94,7 +110,7 @@ export default function MainLayout({ children }) {
             ☰
           </button>
 
-          <h3 className="title">Admin Panel</h3>
+          <h3 className="title">{getTitle()}</h3>
 
           <div className="profile-container" ref={dropdownRef}>
             <div className="profile" onClick={() => setOpen(!open)}>
@@ -103,8 +119,7 @@ export default function MainLayout({ children }) {
 
             {open && (
               <div className="dropdown">
-
-                <div className="dropdown-item" onClick={handleProfile}>
+                <div className="dropdown-item" onClick={() => navigate("/profile")}>
                   View Profile
                 </div>
 
@@ -113,7 +128,6 @@ export default function MainLayout({ children }) {
                 <div className="dropdown-item logout" onClick={handleLogout}>
                   Logout
                 </div>
-
               </div>
             )}
           </div>
@@ -124,7 +138,7 @@ export default function MainLayout({ children }) {
 
         {/* FOOTER */}
         <div className="footer">
-          © {new Date().getFullYear()} Admin Panel • ISO 27001 Compliant • All Rights Reserved
+          © {new Date().getFullYear()} Admin Panel • All Rights Reserved
         </div>
 
       </div>

@@ -268,3 +268,93 @@
 .kyc-filters input {
   min-width: 200px;
 }
+/* =========================
+   RESPONSIVE (LIKE USERS PAGE)
+========================= */
+
+@media (max-width: 1024px) {
+  .kyc-container {
+    padding: 18px 14px;
+  }
+
+  .kyc-table th,
+  .kyc-table td {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .action-dropdown {
+    width: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .kyc-container {
+    padding: 14px 12px;
+  }
+
+  .kyc-table {
+    display: block;
+    overflow-x: auto;   /* KEY FIX for responsiveness */
+    white-space: nowrap;
+  }
+
+  .kyc-table th,
+  .kyc-table td {
+    padding: 10px;
+    font-size: 12.5px;
+  }
+
+  .kyc-filters {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .kyc-filters input,
+  .kyc-filters select {
+    width: 100%;
+    min-width: 160px;
+  }
+
+  .small-dialog {
+    width: 92%;
+    padding: 18px;
+  }
+
+  .modal {
+    width: 92%;
+  }
+}
+
+@media (max-width: 480px) {
+  .kyc-container {
+    padding: 10px;
+  }
+
+  .kyc-table th,
+  .kyc-table td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .action-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+
+  .action-dropdown {
+    width: 140px;
+    right: 0;
+  }
+
+  .small-dialog {
+    width: 95%;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .kyc-filters input {
+    min-width: 100%;
+  }
+}

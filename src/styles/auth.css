@@ -342,6 +342,7 @@ body {
 }
 
 /* New User? Create Account - Centered with Purple */
+/* New User? Create Account - Centered with NAVY BLUE */
 .create-account-row {
   text-align: center;
   margin-top: 12px;
@@ -349,20 +350,29 @@ body {
   color: #64748b;
   animation: fadeInUp 0.8s ease forwards;
   animation-delay: 300ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap; /* Ensures it wraps properly on small screens */
+}
+
+.create-account-row span {
+  color: #64748b; /* "New user?" text color */
+  font-weight: 500;
 }
 
 .create-account-row a {
-  color: #7c3aed;
+  color: #1e40af; /* NAVY BLUE */
   font-weight: 700;
   text-decoration: none;
   transition: all 0.3s ease;
   position: relative;
-  text-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
 }
 
 .create-account-row a:hover {
-  color: #a78bfa;
-  text-shadow: 0 0 18px rgba(139, 92, 246, 0.6);
+  color: #1d4ed8; /* Lighter navy blue on hover */
+  text-shadow: 0 0 12px rgba(30, 64, 175, 0.6);
 }
 
 .create-account-row a::after {
@@ -372,7 +382,7 @@ body {
   height: 1.5px;
   bottom: -2px;
   left: 0;
-  background: linear-gradient(to right, #7c3aed, #a78bfa);
+  background: linear-gradient(to right, #1e40af, #1d4ed8); /* Navy blue underline */
   transition: width 0.4s ease;
 }
 
@@ -481,22 +491,98 @@ body {
   }
 }
 
-@media (max-width: 480px) {
-  .container { padding: 12px; }
-  .card { margin: 8px; border-radius: 20px; }
-  .left, .right { padding: 24px 20px; }
-  .image-wrapper { width: 90% !important; height: 115px !important; }
-}
+/* ========================= MOBILE LAYOUT - FIXED ========================= */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-bottom: 40px; /* Add bottom padding for scrolling */
+  }
 
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms ;
-    animation-iteration-count: 1 ;
-    transition-duration: 0.01ms ;
+  .card {
+    flex-direction: column;
+    width: min(95vw, 380px);
+    min-height: unset; /* Remove fixed height */
+    max-height: none;  /* Allow full height */
+    height: auto;      /* Let content determine height */
+    border-radius: 24px;
+    margin: 0 auto;
+    overflow: visible; /* Allow content to overflow if needed */
+  }
+
+  .left {
+    padding: 32px 24px;
+    border-radius: 24px 24px 0 0;
+    padding-bottom: 160px;
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+
+  .right {
+    padding: 40px 28px;
+    border-radius: 0 0 24px 24px;
+    flex-shrink: 0; /* Prevent shrinking */
+    min-height: 400px; /* Ensure minimum height for form */
+  }
+
+  .image-wrapper {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 85% !important;
+    height: 135px !important;
+    margin: 20px auto 10px;
+    z-index: 23;
+  }
+
+  .features {
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  .right-logo {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    margin: -8px 0 24px 0;
+    animation: logoFloat 6s ease-in-out infinite;
   }
 }
 
+@media (max-width: 480px) {
+  .container { 
+    padding: 8px; 
+    padding-bottom: 50px; /* Extra bottom padding */
+  }
+  
+  .card { 
+    margin: 0 auto; 
+    border-radius: 20px;
+    width: calc(100vw - 32px); /* Full width minus padding */
+  }
+  
+  .left, .right { 
+    padding: 28px 20px; 
+  }
+  
+  .image-wrapper { 
+    width: 92% !important; 
+    height: 120px !important; 
+  }
+  
+  .auth-box {
+    max-width: 100%;
+  }
+}
+
+/* Ensure body allows scrolling */
+@media (max-width: 768px) {
+  body {
+    overflow-x: visible;
+    overflow-y: auto;
+  }
+}
 .error {
   color: #ef4444;
   font-size: 12px;

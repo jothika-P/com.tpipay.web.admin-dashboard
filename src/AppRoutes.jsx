@@ -6,9 +6,10 @@ import Users from "./pages/Users";
 import KYC from "./pages/KYC";
 import Analytics from "./pages/Analytics";
 import RmDashboard from "./pages/RmDashboard";
+import LegalTeamDashboard from "./pages/LegalTeamDashboard";
 
-import MainLayout from "./layout/MainLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import MainLayout from "./layout/MainLayout";
 
 export default function AppRoutes() {
   return (
@@ -17,11 +18,11 @@ export default function AppRoutes() {
       {/* AUTH */}
       <Route path="/" element={<Auth />} />
 
-      {/* ADMIN */}
+      {/* ADMIN + LEGAL DASHBOARD */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "LEGALTEAM"]}>
             <MainLayout>
               <Dashboard />
             </MainLayout>
@@ -34,7 +35,9 @@ export default function AppRoutes() {
         path="/rm"
         element={
           <ProtectedRoute allowedRoles={["RM"]}>
-            <RmDashboard />
+            <MainLayout>
+              <RmDashboard />
+            </MainLayout>
           </ProtectedRoute>
         }
       />
@@ -43,7 +46,7 @@ export default function AppRoutes() {
       <Route
         path="/users"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "LEGALTEAM"]}>
             <MainLayout>
               <Users />
             </MainLayout>
@@ -55,7 +58,7 @@ export default function AppRoutes() {
       <Route
         path="/kyc"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
             <MainLayout>
               <KYC />
             </MainLayout>
@@ -67,7 +70,7 @@ export default function AppRoutes() {
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
             <MainLayout>
               <Analytics />
             </MainLayout>
@@ -75,8 +78,18 @@ export default function AppRoutes() {
         }
       />
 
+      {/* LEGAL TEAM DASHBOARD (optional separate page) */}
+      <Route
+        path="/legal"
+        element={
+          <ProtectedRoute allowedRoles={["LEGALTEAM", "ADMIN"]}>
+            <LegalTeamDashboard />
+          </ProtectedRoute>
+        }
+      />
+
       {/* FALLBACK */}
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
