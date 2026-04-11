@@ -1,55 +1,6 @@
-// const BASE_URL = "https://great-dryers-attack.loca.lt"; 
-
-// const getToken = () => localStorage.getItem("token");
-
-// // CREATE / UPDATE USER
-// export const upsertUser = async (user, operation) => {
-//   const res = await fetch(`${BASE_URL}/users/upsert`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${getToken()}`,
-//     },
-//     body: JSON.stringify({
-//       ...user,
-//       operation,
-//     }),
-//   });
-
-//   return res.json();
-// };
-
-// // DELETE USER
-// export const deleteUserApi = async (id) => {
-//   await fetch(`${BASE_URL}/users/${id}`, {
-//     method: "DELETE",
-//     headers: {
-//       Authorization: `Bearer ${getToken()}`,
-//     },
-//   });
-// };
-
-// // SEARCH USERS
-// export const searchUsers = async (query, filters) => {
-//   const res = await fetch(`${BASE_URL}/users/search`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${getToken()}`,
-//     },
-//     body: JSON.stringify({
-//       query,
-//       filters,
-//     }),
-//   });
-
-//   return res.json();
-// };
-// services/userService.js
-
 import usersData from "../data/users";
 
-// make a local copy (acts like DB)
+// local DB
 let users = [...usersData];
 
 // CREATE / UPDATE
@@ -60,7 +11,6 @@ export const upsertUser = async (user, operation) => {
       id: Date.now(),
       status: user.is_active ? "Active" : "Inactive",
     };
-
     users.push(newUser);
   }
 
@@ -90,7 +40,7 @@ export const deleteUserApi = async (id) => {
 export const searchUsers = async (query, filters) => {
   let filtered = [...users];
 
-  // SEARCH (name/email)
+  // SEARCH
   if (query) {
     filtered = filtered.filter(
       (u) =>
@@ -99,14 +49,14 @@ export const searchUsers = async (query, filters) => {
     );
   }
 
-  // FILTERS
+  // FILTER
   filters.forEach((f) => {
     if (f.key === "role") {
       filtered = filtered.filter((u) => u.role === f.value);
     }
 
     if (f.key === "is_active") {
-      const status = f.value === "true" ? "Active" : "Inactive";
+      const status = f.value === true ? "Active" : "Inactive"; // ✅ FIXED
       filtered = filtered.filter((u) => u.status === status);
     }
   });

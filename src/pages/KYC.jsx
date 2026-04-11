@@ -1,135 +1,78 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/kyc.css";
-import { getKycList, uploadKycDocument } from "../services/kycService";
-import { MoreHorizontal } from "lucide-react";
 
-const KYC = () => {
-  const [data, setData] = useState([]);
+const initialData = [
+  {
+    id: 1,
+    business: "ABC Traders",
+    rm: "Rahul",
+    stage: "RM Review",
+    status: "PENDING",
+  },
+  {
+    id: 2,
+    business: "XYZ Pvt Ltd",
+    rm: "Priya",
+    stage: "Backend",
+    status: "PENDING",
+  },
+];
 
-  const [searchBusiness, setSearchBusiness] = useState("");
-  const [searchRM, setSearchRM] = useState("");
-  const [rmFilter, setRmFilter] = useState("All");
+export default function Kyc() {
+  const [data, setData] = useState(initialData);
+  const [openMenu, setOpenMenu] = useState(null);
 
-  const [menuOpen, setMenuOpen] = useState(null);
-  const [viewData, setViewData] = useState(null);
-  const [kycData, setKycData] = useState(null);
+  // DRAWER STATE
+  const [drawer, setDrawer] = useState(null); // "details" | "kyc"
+  const [selectedRow, setSelectedRow] = useState(null);
 
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    getKycList().then(setData);
-  }, []);
-
-  // OUTSIDE CLICK CLOSE MENU
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuOpen(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const rmList = ["All", ...new Set(data.map((d) => d.rm))];
-
-  const filtered = data.filter((item) => {
-    const matchRM = rmFilter === "All" || item.rm === rmFilter;
-
-    const matchBusiness = item.business
-      .toLowerCase()
-      .includes(searchBusiness.toLowerCase());
-
-    const matchRMSearch = item.rm
-      .toLowerCase()
-      .includes(searchRM.toLowerCase());
-
-    return matchRM && matchBusiness && matchRMSearch;
+  const [files, setFiles] = useState({
+    aadhaar: null,
+    pan: null,
+    gst: null,
   });
 
-  const handleStatusChange = (id, status) => {
+  useEffect(() => {
+    const handleClick = () => setOpenMenu(null);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  const toggleMenu = (e, id) => {
+    e.stopPropagation();
+    setOpenMenu(openMenu === id ? null : id);
+  };
+
+  const updateStatus = (id, status) => {
     setData((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, status } : item
       )
     );
+    setOpenMenu(null);
   };
 
-  const handleUpload = async (id, type, file) => {
-    const res = await uploadKycDocument(id, type, file);
-
-    setData((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              docs: {
-                ...item.docs,
-                [type]: res.fileUrl,
-              },
-            }
-          : item
-      )
-    );
+  const openDrawer = (type, row) => {
+    setSelectedRow(row);
+    setDrawer(type);
+    setOpenMenu(null);
   };
 
-  const handleDeleteDoc = (id, type) => {
-    setData((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              docs: {
-                ...item.docs,
-                [type]: null,
-              },
-            }
-          : item
-      )
-    );
+  const closeDrawer = () => {
+    setDrawer(null);
+    setSelectedRow(null);
+  };
+
+  const submitKyc = () => {
+    alert("KYC Submitted Successfully ✅");
+    closeDrawer();
+    setFiles({ aadhaar: null, pan: null, gst: null });
   };
 
   return (
     <div className="kyc-container">
-      <h2>KYC Management</h2>
+      <h2 className="title">KYC Management</h2>
 
-      {/* FILTERS */}
-      <div className="filters">
-
-        <input
-          placeholder="Search Business..."
-          value={searchBusiness}
-          onChange={(e) => setSearchBusiness(e.target.value)}
-        />
-
-        <input
-          placeholder="Search RM..."
-          value={searchRM}
-          onChange={(e) => setSearchRM(e.target.value)}
-        />
-
-        {/* ✅ RM COMBOBOX FILTER */}
-        <div className="rm-combobox">
-          <input
-            className="rm-input"
-            placeholder="Filter by RM..."
-            value={rmFilter === "All" ? "" : rmFilter}
-            onChange={(e) =>
-              setRmFilter(e.target.value === "" ? "All" : e.target.value)
-            }
-            list="rm-list"
-          />
-
-          <datalist id="rm-list">
-            {rmList.map((rm, i) => (
-              <option key={i} value={rm} />
-            ))}
-          </datalist>
-        </div>
-      </div>
-
-      {/* TABLE */}
       <table className="kyc-table">
         <thead>
           <tr>
@@ -142,136 +85,119 @@ const KYC = () => {
         </thead>
 
         <tbody>
-          {filtered.map((row) => (
+          {data.map((row) => (
             <tr key={row.id}>
               <td>{row.business}</td>
               <td>{row.rm}</td>
               <td>{row.stage}</td>
-
               <td>
-                <span className={`status ${row.status?.toLowerCase()}`}>
+                <span className={`status ${row.status.toLowerCase()}`}>
                   {row.status}
                 </span>
               </td>
 
-              {/* ACTION */}
-              <td>
-                <div className="menu-wrapper" ref={menuRef}>
-                  <div
-                    className="icon"
-                    onClick={() =>
-                      setMenuOpen(menuOpen === row.id ? null : row.id)
-                    }
-                  >
-                    <MoreHorizontal />
+              <td style={{ position: "relative" }}>
+                <button
+                  className="action-btn"
+                  onClick={(e) => toggleMenu(e, row.id)}
+                >
+                  ⋮
+                </button>
+
+                {openMenu === row.id && (
+                  <div className="action-dropdown">
+                    <button onClick={() => openDrawer("details", row)}>
+                      👁 Details
+                    </button>
+
+                    <button onClick={() => openDrawer("kyc", row)}>
+                      📄 KYC
+                    </button>
+
+                    {row.status === "PENDING" && (
+                      <>
+                        <button
+                          className="approve"
+                          onClick={() =>
+                            updateStatus(row.id, "APPROVED")
+                          }
+                        >
+                          ✔ Approve
+                        </button>
+
+                        <button
+                          className="reject"
+                          onClick={() =>
+                            updateStatus(row.id, "REJECTED")
+                          }
+                        >
+                          ✖ Reject
+                        </button>
+                      </>
+                    )}
                   </div>
-
-                  {menuOpen === row.id && (
-                    <div className="dropdown">
-                      <div
-                        onClick={() => {
-                          setViewData(row);
-                          setMenuOpen(null);
-                        }}
-                      >
-                        Details
-                      </div>
-
-                      <div
-                        onClick={() => {
-                          setKycData(row);
-                          setMenuOpen(null);
-                        }}
-                      >
-                        KYC
-                      </div>
-
-                      <div
-                        onClick={() => {
-                          handleStatusChange(row.id, "APPROVED");
-                          setMenuOpen(null);
-                        }}
-                      >
-                        Approve
-                      </div>
-
-                      <div
-                        onClick={() => {
-                          handleStatusChange(row.id, "REJECTED");
-                          setMenuOpen(null);
-                        }}
-                      >
-                        Reject
-                      </div>
-
-                      <div
-                        onClick={() => {
-                          alert("Delete clicked");
-                          setMenuOpen(null);
-                        }}
-                      >
-                        Delete
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* DETAILS MODAL */}
-      {viewData && (
-        <div className="modal">
-          <div className="modal-box">
+      {/* ================= BACKDROP ================= */}
+      {drawer && <div className="backdrop" onClick={closeDrawer}></div>}
+
+      {/* ================= RIGHT DRAWER ================= */}
+      <div className={`drawer ${drawer ? "open" : ""}`}>
+
+        {/* DETAILS */}
+        {drawer === "details" && selectedRow && (
+          <div>
             <h3>Business Details</h3>
-            <p><b>Business:</b> {viewData.business}</p>
-            <p><b>RM:</b> {viewData.rm}</p>
-            <p><b>Stage:</b> {viewData.stage}</p>
-            <p><b>Status:</b> {viewData.status}</p>
+            <p><b>Business:</b> {selectedRow.business}</p>
+            <p><b>RM:</b> {selectedRow.rm}</p>
+            <p><b>Stage:</b> {selectedRow.stage}</p>
+            <p><b>Status:</b> {selectedRow.status}</p>
 
-            <button onClick={() => setViewData(null)}>Close</button>
+            <button onClick={closeDrawer}>Close</button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* KYC MODAL */}
-      {kycData && (
-        <div className="modal">
-          <div className="modal-box">
-            <h3>KYC Documents</h3>
+        {/* KYC */}
+        {drawer === "kyc" && selectedRow && (
+          <div>
+            <h3>KYC Upload</h3>
 
-            {["aadhaar", "pan", "gst"].map((doc) => (
-              <div className="doc-row" key={doc}>
-                <span>{doc.toUpperCase()}</span>
+            <label>Aadhaar</label>
+            <input
+              type="file"
+              onChange={(e) =>
+                setFiles({ ...files, aadhaar: e.target.files[0] })
+              }
+            />
 
-                {kycData.docs?.[doc] ? (
-                  <>
-                    <button onClick={() => window.open(kycData.docs[doc])}>
-                      View
-                    </button>
-                    <button onClick={() => handleDeleteDoc(kycData.id, doc)}>
-                      Delete
-                    </button>
-                  </>
-                ) : (
-                  <input
-                    type="file"
-                    onChange={(e) =>
-                      handleUpload(kycData.id, doc, e.target.files[0])
-                    }
-                  />
-                )}
-              </div>
-            ))}
+            <label>PAN</label>
+            <input
+              type="file"
+              onChange={(e) =>
+                setFiles({ ...files, pan: e.target.files[0] })
+              }
+            />
 
-            <button onClick={() => setKycData(null)}>Close</button>
+            <label>GST</label>
+            <input
+              type="file"
+              onChange={(e) =>
+                setFiles({ ...files, gst: e.target.files[0] })
+              }
+            />
+
+            <div className="modal-actions">
+              <button onClick={submitKyc}>Submit</button>
+              <button onClick={closeDrawer}>Cancel</button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
-};
-
-export default KYC;
+}

@@ -1,7 +1,7 @@
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export const getKycList = async () => {
-  await delay(300);
+  await delay(200);
 
   return [
     {
@@ -24,7 +24,8 @@ export const getKycList = async () => {
 };
 
 export const uploadKycDocument = async (id, type, file) => {
-  await delay(300);
+  await delay(200);
+
   return {
     fileUrl: URL.createObjectURL(file),
   };

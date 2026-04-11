@@ -1,16 +1,67 @@
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
 
-const Sidebar = () => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const menu = [
+    { label: "Users", path: "/users", icon: "👥" },
+    { label: "KYC", path: "/kyc", icon: "🛡️" },
+    { label: "Analytics", path: "/analytics", icon: "📊" },
+  ];
+
+  // ✅ LOGOUT FUNCTION
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      localStorage.removeItem("token"); // remove auth
+      sessionStorage.clear();
+      navigate("/login"); // redirect
+    }
+  };
+
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
 
-      <div className="logo">LOGO</div>
+      {/* HEADER */}
+      <div className="sidebar-header">
+        <img src={logo} alt="logo" />
 
-      <Link to="/">Dashboard</Link>
-      <Link to="/users">Users</Link>
-      <Link to="/kyc">KYC</Link>
-      <Link to="/analytics">Analytics</Link>
-      <Link to="/Logout">Logout</Link>
+        <button
+          className="close-btn"
+          onClick={() => setSidebarOpen(false)}
+        >
+          ✖
+        </button>
+      </div>
+
+      {/* MENU */}
+      <div className="sidebar-menu">
+        {menu.map((item) => {
+          const isActive = location.pathname === item.path;
+
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`sidebar-link ${isActive ? "active" : ""}`}
+            >
+              <span className="icon">{item.icon}</span>
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* ✅ LOGOUT BUTTON */}
+      <div className="sidebar-footer">
+        <button className="logout-btn" onClick={handleLogout}>
+          <span className="icon">🚪</span>
+          Logout
+        </button>
+      </div>
 
     </div>
   );

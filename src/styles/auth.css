@@ -372,3 +372,9 @@ body {
 .full {
   grid-column: span 2;
 }
+.error {
+  color: red;
+  font-size: 12px;
+  margin-bottom: 8px;
+  display: block;
+}
