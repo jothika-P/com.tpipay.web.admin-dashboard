@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { State, City, Country } from "country-state-city";
 
 const RegisterForm = ({ onSuccess, onBack }) => {
   const [form, setForm] = useState({
@@ -12,164 +13,165 @@ const RegisterForm = ({ onSuccess, onBack }) => {
     confirmPassword: ""
   });
 
-  const handleSubmit = (e) => {
-    e?.preventDefault(); // 🔴 prevents page refresh issues
+  const [errors, setErrors] = useState({});
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const handleChange = (field, value) => {
+    const updated = { ...form, [field]: value };
+
+    // reset city when state changes
+    if (field === "state") {
+      updated.city = "";
+    }
+
+    setForm(updated);
+    validate(updated);
+  };
+
+  const validate = (data) => {
+    let err = {};
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const mobileRegex = /^[6-9]\d{9}$/;
     const pincodeRegex = /^[0-9]{6}$/;
 
-    // Trim values safely
-    const name = form.name?.trim();
-    const email = form.email?.trim();
-    const mobile = form.mobile?.trim();
-    const pincode = form.pincode?.trim();
-
-    // NAME
-    if (!name || name.length < 3) {
-      alert("❌ Enter valid full name (min 3 characters)");
-      return;
+    if (data.name && data.name.length < 3) {
+      err.name = "Min 3 characters required";
     }
 
-    // EMAIL (FIXED)
-    if (!email || !emailRegex.test(email)) {
-      alert("❌ Enter valid email address (example: test@gmail.com)");
-      return;
+    if (data.email && !emailRegex.test(data.email)) {
+      err.email = "Invalid email";
     }
 
-    // MOBILE (10 digits, starts 6-9)
-    if (!mobile || !mobileRegex.test(mobile)) {
-      alert("❌ Enter valid 10-digit mobile number");
-      return;
+    if (data.mobile && !mobileRegex.test(data.mobile)) {
+      err.mobile = "Invalid mobile number";
     }
 
-    // STATE
-    if (!form.state) {
-      alert("❌ Please select state");
-      return;
+    if (data.pincode && !pincodeRegex.test(data.pincode)) {
+      err.pincode = "Invalid pincode";
     }
 
-    // CITY
-    if (!form.city) {
-      alert("❌ Please select city");
-      return;
+    if (data.password && data.password.length < 6) {
+      err.password = "Min 6 characters required";
     }
 
-    // PINCODE
-    if (!pincode || !pincodeRegex.test(pincode)) {
-      alert("❌ Enter valid 6-digit pincode");
-      return;
+    if (data.confirmPassword && data.confirmPassword !== data.password) {
+      err.confirmPassword = "Passwords not matching";
     }
 
-    // PASSWORD
-    if (!form.password || form.password.length < 6) {
-      alert("❌ Password must be at least 6 characters");
-      return;
-    }
+    setErrors(err);
+    return err;
+  };
 
-    // CONFIRM PASSWORD
-    if (form.password !== form.confirmPassword) {
-      alert("❌ Passwords do not match");
-      return;
-    }
+  // ✅ INDIA STATES
+  const states = State.getStatesOfCountry("IN");
 
-    alert("✅ Registration Successful!");
-    onSuccess();
+  // ✅ CITIES based on selected state
+  const cities = form.state
+    ? City.getCitiesOfState("IN", form.state)
+    : [];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const err = validate(form);
+
+    if (Object.keys(err).length === 0) {
+      onSuccess();
+    }
   };
 
   return (
     <>
       <h2>Create Account</h2>
 
-      <div className="form-grid">
+      <form noValidate onSubmit={handleSubmit}>
+        <div className="form-grid">
 
-        <input
-          className="full"
-          placeholder="Full Name"
-          value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
+          <input
+            placeholder="Full Name"
+            value={form.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+          />
+          {errors.name && <p className="error">{errors.name}</p>}
 
-        <input
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-        />
+          <input
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+          />
+          {errors.email && <p className="error">{errors.email}</p>}
 
-        <input
-          placeholder="Mobile"
-          value={form.mobile}
-          maxLength={10}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              mobile: e.target.value.replace(/\D/g, "")
-            })
-          }
-        />
+          <input
+            placeholder="Mobile"
+            maxLength={10}
+            value={form.mobile}
+            onChange={(e) =>
+              handleChange("mobile", e.target.value.replace(/\D/g, ""))
+            }
+          />
+          {errors.mobile && <p className="error">{errors.mobile}</p>}
 
-        <select
-          value={form.state}
-          onChange={(e) =>
-            setForm({ ...form, state: e.target.value })
-          }
-        >
-          <option value="">State</option>
-          <option>Karnataka</option>
-          <option>Tamil Nadu</option>
-        </select>
+          {/* 🔥 STATE DROPDOWN (INDIA ALL STATES) */}
+          <select
+            value={form.state}
+            onChange={(e) => handleChange("state", e.target.value)}
+          >
+            <option value="">Select State</option>
+            {states.map((s) => (
+              <option key={s.isoCode} value={s.isoCode}>
+                {s.name}
+              </option>
+            ))}
+          </select>
 
-        <select
-          value={form.city}
-          onChange={(e) =>
-            setForm({ ...form, city: e.target.value })
-          }
-        >
-          <option value="">City</option>
-          <option>Bangalore</option>
-          <option>Chennai</option>
-        </select>
+          {/* 🔥 CITY DROPDOWN (BASED ON STATE) */}
+          <select
+            value={form.city}
+            onChange={(e) => handleChange("city", e.target.value)}
+            disabled={!form.state}
+          >
+            <option value="">Select City</option>
+            {cities.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
 
-        <input
-          placeholder="Pincode"
-          value={form.pincode}
-          maxLength={6}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              pincode: e.target.value.replace(/\D/g, "")
-            })
-          }
-        />
+          <input
+            placeholder="Pincode"
+            maxLength={6}
+            value={form.pincode}
+            onChange={(e) =>
+              handleChange("pincode", e.target.value.replace(/\D/g, ""))
+            }
+          />
+          {errors.pincode && <p className="error">{errors.pincode}</p>}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) => handleChange("password", e.target.value)}
+          />
+          {errors.password && <p className="error">{errors.password}</p>}
 
-        <input
-          type="password"
-          placeholder="Confirm"
-          value={form.confirmPassword}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              confirmPassword: e.target.value
-            })
-          }
-        />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={form.confirmPassword}
+            onChange={(e) =>
+              handleChange("confirmPassword", e.target.value)
+            }
+          />
+          {errors.confirmPassword && (
+            <p className="error">{errors.confirmPassword}</p>
+          )}
 
-      </div>
+        </div>
 
-      <button onClick={handleSubmit}>Register</button>
+        <button type="submit">Register</button>
+      </form>
 
       <p className="signup-text">
         Already have account?{" "}
