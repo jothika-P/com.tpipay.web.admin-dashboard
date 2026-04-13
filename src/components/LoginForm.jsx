@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { loginUser } from "../services/authService";
 
-const LoginForm = ({ onSuccess, onSignup }) => {
+const LoginForm = ({ onSuccess, onSignup, hideTitle }) => {
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -25,7 +25,7 @@ const LoginForm = ({ onSuccess, onSignup }) => {
 
   return (
     <>
-      <h2>Sign In</h2>
+      {!hideTitle && <h2>Sign In</h2>}
 
       <input
         placeholder="Username"
@@ -48,12 +48,12 @@ const LoginForm = ({ onSuccess, onSignup }) => {
 
       <button onClick={handleSubmit}>Login</button>
 
-      <p className="signup-text">
-        New user?{" "}
+      <div className="create-account-row">
+        <span>New user?</span>
         <span className="link" onClick={onSignup}>
           Create Account
         </span>
-      </p>
+      </div>
     </>
   );
 };

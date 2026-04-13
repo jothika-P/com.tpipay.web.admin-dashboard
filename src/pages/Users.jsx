@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "../styles/users.css";
 
 const initialUsers = Array.from({ length: 60 }, (_, i) => ({
   id: i + 1,
@@ -263,11 +262,33 @@ export default function Users() {
         {drawer === "view" && selectedUser && (
           <div>
             <h3>User Details</h3>
-            <p><b>Name:</b> {selectedUser.name}</p>
-            <p><b>Email:</b> {selectedUser.email}</p>
-            <p><b>Role:</b> {selectedUser.role}</p>
-            <p><b>Status:</b> {selectedUser.status}</p>
-            <button onClick={closeDrawer}>Close</button>
+
+            <div className="form-group">
+              <label>Name</label>
+              <input value={selectedUser.name} disabled />
+            </div>
+
+            <div className="form-group">
+              <label>Email</label>
+              <input value={selectedUser.email} disabled />
+            </div>
+
+            <div className="form-group">
+              <label>Role</label>
+              <select value={selectedUser.role} disabled>
+                <option>ADMIN</option>
+                <option>MANAGER</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Status</label>
+              <input value={selectedUser.status} disabled />
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={closeDrawer}>Close</button>
+            </div>
           </div>
         )}
 
@@ -275,29 +296,38 @@ export default function Users() {
           <div>
             <h3>Edit User</h3>
 
-            <input
-              value={selectedUser.name}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, name: e.target.value })
-              }
-            />
+            <div className="form-group">
+              <label>Name</label>
+              <input
+                value={selectedUser.name}
+                onChange={(e) =>
+                  setSelectedUser({ ...selectedUser, name: e.target.value })
+                }
+              />
+            </div>
 
-            <input
-              value={selectedUser.email}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, email: e.target.value })
-              }
-            />
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                value={selectedUser.email}
+                onChange={(e) =>
+                  setSelectedUser({ ...selectedUser, email: e.target.value })
+                }
+              />
+            </div>
 
-            <select
-              value={selectedUser.role}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, role: e.target.value })
-              }
-            >
-              <option>ADMIN</option>
-              <option>MANAGER</option>
-            </select>
+            <div className="form-group">
+              <label>Role</label>
+              <select
+                value={selectedUser.role}
+                onChange={(e) =>
+                  setSelectedUser({ ...selectedUser, role: e.target.value })
+                }
+              >
+                <option>ADMIN</option>
+                <option>MANAGER</option>
+              </select>
+            </div>
 
             <div className="modal-actions">
               <button onClick={saveEdit}>Save</button>
@@ -315,41 +345,53 @@ export default function Users() {
           <div className="drawer open">
             <h3>Add User</h3>
 
-            <input
-              placeholder="Name"
-              value={newUser.name}
-              onChange={(e) =>
-                setNewUser({ ...newUser, name: e.target.value })
-              }
-            />
+            <div className="form-group">
+              <label>Name</label>
+              <input
+                placeholder="Enter name"
+                value={newUser.name}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, name: e.target.value })
+                }
+              />
+            </div>
 
-            <input
-              placeholder="Email"
-              value={newUser.email}
-              onChange={(e) =>
-                setNewUser({ ...newUser, email: e.target.value })
-              }
-            />
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                placeholder="Enter email"
+                value={newUser.email}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, email: e.target.value })
+                }
+              />
+            </div>
 
-            <select
-              value={newUser.role}
-              onChange={(e) =>
-                setNewUser({ ...newUser, role: e.target.value })
-              }
-            >
-              <option>ADMIN</option>
-              <option>MANAGER</option>
-            </select>
+            <div className="form-group">
+              <label>Role</label>
+              <select
+                value={newUser.role}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, role: e.target.value })
+                }
+              >
+                <option>ADMIN</option>
+                <option>MANAGER</option>
+              </select>
+            </div>
 
-            <select
-              value={newUser.status}
-              onChange={(e) =>
-                setNewUser({ ...newUser, status: e.target.value })
-              }
-            >
-              <option>Active</option>
-              <option>Inactive</option>
-            </select>
+            <div className="form-group">
+              <label>Status</label>
+              <select
+                value={newUser.status}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, status: e.target.value })
+                }
+              >
+                <option>Active</option>
+                <option>Inactive</option>
+              </select>
+            </div>
 
             <div className="modal-actions">
               <button onClick={() => setShowAdd(false)}>Cancel</button>

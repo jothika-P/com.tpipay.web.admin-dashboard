@@ -19,6 +19,12 @@ const OtpForm = ({ otpType, goToLogin }) => {
     }
   };
 
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
+
   const handleSubmit = async () => {
     const finalOtp = otp.join("");
 
@@ -42,31 +48,29 @@ const OtpForm = ({ otpType, goToLogin }) => {
 
     const role = (res.role || "").toUpperCase();
 
-    // store login info
+    // SAVE AUTH
     localStorage.setItem("token", res.token);
     localStorage.setItem("role", role);
 
-    // ✅ ROLE BASED NAVIGATION (FIXED)
-    switch (role) {
-      case "ADMIN":
-        navigate("/dashboard", { replace: true });
-        break;
+    console.log("LOGIN ROLE:", role);
 
-      case "RM":
-        navigate("/rm", { replace: true });
-        break;
-
-      case "LEGALTEAM":
-        navigate("/analytics", { replace: true });
-        break;
-
-      default:
-        navigate("/");
+    // ✅ FIXED ROLE NAVIGATION
+    if (role === "ADMIN") {
+      navigate("/users", { replace: true });
+    } 
+    else if (role === "RM") {
+      navigate("/kyc", { replace: true });   // 🔥 FIX: RM goes to KYC
+    } 
+    else if (role === "LEGALTEAM") {
+      navigate("/analytics", { replace: true });
+    } 
+    else {
+      navigate("/", { replace: true });
     }
   };
 
   return (
-    <>
+    <div className="otp-wrapper">
       <h2>{otpType === "REGISTER" ? "Register OTP" : "Login OTP"}</h2>
 
       <div className="otp-container">
@@ -74,15 +78,20 @@ const OtpForm = ({ otpType, goToLogin }) => {
           <input
             key={i}
             ref={(el) => (inputsRef.current[i] = el)}
+            type="text"
             maxLength={1}
             value={digit}
             onChange={(e) => handleChange(e.target.value, i)}
+            onKeyDown={(e) => handleKeyDown(e, i)}
+            className="otp-box"
           />
         ))}
       </div>
 
-      <button onClick={handleSubmit}>Verify</button>
-    </>
+      <button className="otp-btn" onClick={handleSubmit}>
+        Verify OTP
+      </button>
+    </div>
   );
 };
 
