@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import "../styles/mainLayout.css";
+import { User, Menu, Bell, X, Shield, Activity, Users, LogOut, Building2 } from "lucide-react";
 import logo from "../assets/logo.png";
 
 export default function MainLayout({ children }) {
@@ -13,33 +13,36 @@ export default function MainLayout({ children }) {
 
   const role = (localStorage.getItem("role") || "").toUpperCase();
 
-  // ✅ MENU BASED ON ROLE
-  const menu =
-    role === "ADMIN" || role === "LEGALTEAM"
-      ? [
-          { label: "Users", path: "/users", icon: "👥" },
-          { label: "KYC", path: "/kyc", icon: "🛡️" },
-          { label: "Analytics", path: "/analytics", icon: "📊" },
-        ]
-      : role === "RM"
-      ? [
-          { label: "KYC", path: "/kyc", icon: "🛡️" },
-          { label: "Analytics", path: "/analytics", icon: "📊" },
-        ]
-      : [];
+  const isAdmin = role === "ADMIN";
+  const isRM = role === "RM";
+  const isLegal = role === "LEGALTEAM";
 
-  // ✅ DYNAMIC TITLE
+  /* ================= MENU ================= */
+  const menu =
+    isAdmin
+      ? [
+        { label: "Dashboard", path: "/analytics", icon: <Activity size={20} /> },
+        { label: "Merchants", path: "/merchants", icon: <Building2 size={20} /> },
+        { label: "Users", path: "/users", icon: <Users size={20} /> },
+        { label: "KYC Portal", path: "/kyc", icon: <Shield size={20} /> },
+      ]
+      : isRM
+        ? [
+          { label: "Merchants", path: "/merchants", icon: <Building2 size={20} /> },
+          { label: "KYC Portal", path: "/kyc", icon: <Shield size={20} /> }
+        ]
+        : isLegal
+          ? [
+            { label: "Dashboard", path: "/analytics", icon: <Activity size={20} /> },
+            { label: "KYC Portal", path: "/kyc", icon: <Shield size={20} /> },
+          ]
+          : [];
+
   const getTitle = () => {
-    switch (role) {
-      case "ADMIN":
-        return "Admin Panel";
-      case "RM":
-        return "RM Dashboard";
-      case "LEGALTEAM":
-        return "Legal Team Dashboard";
-      default:
-        return "Dashboard";
-    }
+    if (isAdmin) return "Admin Dashboard";
+    if (isRM) return "RM Dashboard";
+    if (isLegal) return "Legal Dashboard";
+    return "Dashboard";
   };
 
   useEffect(() => {
@@ -58,90 +61,100 @@ export default function MainLayout({ children }) {
   };
 
   return (
-    <div className="layout">
-
+    <div className="dash-layout">
       {/* SIDEBAR */}
-      <div className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
+      <aside className={`dash-sidebar ${sidebarOpen ? "open" : "closed"}`}>
+        <div className="dash-sidebar-header">
+          <img src={logo} alt="logo" className="main-logo" />
+          <button className="sidebar-toggle" onClick={() => setSidebarOpen(false)}>
+            <X size={18} />
+          </button>
+        </div>
 
-        {/* TOP SECTION */}
-        <div className="sidebar-top">
+        <nav className="dash-menu">
+          {menu.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`dash-link ${location.pathname === item.path ? "active" : ""}`}
+            >
+              <span className="link-icon">{item.icon}</span>
+              <span className="link-text">{item.label}</span>
+            </Link>
+          ))}
 
-          <div className="sidebar-header">
-            <img src={logo} alt="logo" />
-            <button className="close-btn" onClick={() => setSidebarOpen(false)}>
-              ✖
+          <div style={{ marginTop: "auto", paddingBottom: "20px" }}>
+            <button className="dash-link logout-btn" onClick={handleLogout} style={{ width: '100%', background: 'none', border: 'none' }}>
+              <LogOut size={20} />
+              <span className="link-text">Logout</span>
             </button>
           </div>
-
-          <div className="sidebar-menu">
-            {menu.map((item) => {
-              const isActive = location.pathname === item.path;
-
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`sidebar-link ${isActive ? "active" : ""}`}
-                >
-                  <span className="icon">{item.icon}</span>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
-
-        </div>
-
-        {/* BOTTOM SECTION (FIXED LOGOUT 🔥) */}
-        <div className="sidebar-bottom">
-          <div className="sidebar-link logout" onClick={handleLogout}>
-            🚪 Logout
-          </div>
-        </div>
-
-      </div>
+        </nav>
+      </aside>
 
       {/* MAIN */}
-      <div className="main">
-
+      <main className="dash-main">
         {/* HEADER */}
-        <div className="header">
-          <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
-            ☰
-          </button>
+        <header className="dash-header">
+          <div className="header-left">
+            {!sidebarOpen && (
+              <button className="icon-btn" onClick={() => setSidebarOpen(true)}>
+                <Menu size={20} />
+              </button>
+            )}
+            <h3 className="dashboard-title">{getTitle()}</h3>
+          </div>
 
-          <h3 className="title">{getTitle()}</h3>
+          <div className="header-right">
+            <button className="icon-btn notification-btn">
+              <Bell size={20} />
+              <span className="notification-dot"></span>
+            </button>
 
-          <div className="profile-container" ref={dropdownRef}>
-            <div className="profile" onClick={() => setOpen(!open)}>
-              <i className="bi bi-person-circle"></i>
-            </div>
-
-            {open && (
-              <div className="dropdown">
-                <div className="dropdown-item" onClick={() => navigate("/profile")}>
-                  View Profile
+            <div className="user-dropdown-wrapper" ref={dropdownRef}>
+              <div className="user-profile-trigger" onClick={() => setOpen(!open)}>
+                <div className="user-info-text">
+                  <p className="user-name">Admin User</p>
+                  <p className="user-role">{role}</p>
                 </div>
-
-                <div className="dropdown-divider"></div>
-
-                <div className="dropdown-item logout" onClick={handleLogout}>
-                  Logout
+                <div className="user-avatar-small">
+                  <User size={18} />
                 </div>
               </div>
-            )}
+
+              {open && (
+                <div className="premium-dropdown">
+                  <div className="dropdown-item">Profile Settings</div>
+                  <div className="dropdown-item">Security</div>
+                  <div className="dropdown-item danger" onClick={handleLogout}>Logout</div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </header>
 
         {/* CONTENT */}
-        <div className="content">{children}</div>
+        <div className="layout-wrapper">
+          <div className="layout-content">
+            {children}
+          </div>
 
-        {/* FOOTER */}
-        <div className="footer">
-          © {new Date().getFullYear()} Admin Panel • All Rights Reserved
+          <footer className="footer">
+            <div className="footer-container">
+              <div className="footer-left">
+                <h4 className="footer-logo">PaySecure</h4>
+                <p>Trusted fintech infrastructure.</p>
+              </div>
+              <div className="footer-center">
+                <p>&copy; {new Date().getFullYear()} PaySecure Inc.</p>
+              </div>
+              <div className="footer-right">
+                <span className="iso-badge">ISO 27001 Certified</span>
+              </div>
+            </div>
+          </footer>
         </div>
-
-      </div>
+      </main>
     </div>
   );
 }

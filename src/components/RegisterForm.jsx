@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { State, City, Country } from "country-state-city";
+import { State, City } from "country-state-city";
 
-const RegisterForm = ({ onSuccess, onBack }) => {
+const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -17,168 +17,124 @@ const RegisterForm = ({ onSuccess, onBack }) => {
 
   const handleChange = (field, value) => {
     const updated = { ...form, [field]: value };
-
-    // reset city when state changes
-    if (field === "state") {
-      updated.city = "";
-    }
-
+    if (field === "state") updated.city = "";
     setForm(updated);
     validate(updated);
   };
 
   const validate = (data) => {
     let err = {};
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const mobileRegex = /^[6-9]\d{9}$/;
     const pincodeRegex = /^[0-9]{6}$/;
 
-    if (data.name && data.name.length < 3) {
-      err.name = "Min 3 characters required";
-    }
-
-    if (data.email && !emailRegex.test(data.email)) {
-      err.email = "Invalid email";
-    }
-
-    if (data.mobile && !mobileRegex.test(data.mobile)) {
-      err.mobile = "Invalid mobile number";
-    }
-
-    if (data.pincode && !pincodeRegex.test(data.pincode)) {
-      err.pincode = "Invalid pincode";
-    }
-
-    if (data.password && data.password.length < 6) {
-      err.password = "Min 6 characters required";
-    }
-
-    if (data.confirmPassword && data.confirmPassword !== data.password) {
-      err.confirmPassword = "Passwords not matching";
-    }
+    if (data.name && data.name.length < 3) err.name = "Min 3 chars";
+    if (data.email && !emailRegex.test(data.email)) err.email = "Invalid email";
+    if (data.mobile && !mobileRegex.test(data.mobile)) err.mobile = "Invalid mobile";
+    if (data.pincode && !pincodeRegex.test(data.pincode)) err.pincode = "Invalid pincode";
+    if (data.password && data.password.length < 6) err.password = "Min 6 chars";
+    if (data.confirmPassword && data.confirmPassword !== data.password) err.confirmPassword = "Mismatch";
 
     setErrors(err);
     return err;
   };
 
-  // ✅ INDIA STATES
   const states = State.getStatesOfCountry("IN");
-
-  // ✅ CITIES based on selected state
-  const cities = form.state
-    ? City.getCitiesOfState("IN", form.state)
-    : [];
+  const cities = form.state ? City.getCitiesOfState("IN", form.state) : [];
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const err = validate(form);
-
-    if (Object.keys(err).length === 0) {
-      onSuccess();
-    }
+    if (Object.keys(err).length === 0) onSuccess();
   };
 
   return (
     <>
-      <h2>Create Account</h2>
+      {!hideTitle && <h2>Create Account</h2>}
 
-      <form noValidate onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit} style={{ margin: 0 }}>
         <div className="form-grid">
+          {/* Grouping Input + Error in a wrapper to prevent grid spacing issues */}
+          <div className="input-group">
+            <input
+              placeholder="Full Name"
+              value={form.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+            />
+            {errors.name && <p className="error-text">{errors.name}</p>}
+          </div>
 
-          <input
-            placeholder="Full Name"
-            value={form.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-          {errors.name && <p className="error">{errors.name}</p>}
+          <div className="input-group">
+            <input
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+            />
+            {errors.email && <p className="error-text">{errors.email}</p>}
+          </div>
 
-          <input
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-          />
-          {errors.email && <p className="error">{errors.email}</p>}
+          <div className="input-group">
+            <input
+              placeholder="Mobile"
+              maxLength={10}
+              value={form.mobile}
+              onChange={(e) => handleChange("mobile", e.target.value.replace(/\D/g, ""))}
+            />
+            {errors.mobile && <p className="error-text">{errors.mobile}</p>}
+          </div>
 
-          <input
-            placeholder="Mobile"
-            maxLength={10}
-            value={form.mobile}
-            onChange={(e) =>
-              handleChange("mobile", e.target.value.replace(/\D/g, ""))
-            }
-          />
-          {errors.mobile && <p className="error">{errors.mobile}</p>}
+          <div className="input-group">
+            <select value={form.state} onChange={(e) => handleChange("state", e.target.value)}>
+              <option value="">Select State</option>
+              {states.map((s) => <option key={s.isoCode} value={s.isoCode}>{s.name}</option>)}
+            </select>
+          </div>
 
-          {/* 🔥 STATE DROPDOWN (INDIA ALL STATES) */}
-          <select
-            value={form.state}
-            onChange={(e) => handleChange("state", e.target.value)}
-          >
-            <option value="">Select State</option>
-            {states.map((s) => (
-              <option key={s.isoCode} value={s.isoCode}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+          <div className="input-group">
+            <select value={form.city} onChange={(e) => handleChange("city", e.target.value)} disabled={!form.state}>
+              <option value="">Select City</option>
+              {cities.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+            </select>
+          </div>
 
-          {/* 🔥 CITY DROPDOWN (BASED ON STATE) */}
-          <select
-            value={form.city}
-            onChange={(e) => handleChange("city", e.target.value)}
-            disabled={!form.state}
-          >
-            <option value="">Select City</option>
-            {cities.map((c) => (
-              <option key={c.name} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <div className="input-group">
+            <input
+              placeholder="Pincode"
+              maxLength={6}
+              value={form.pincode}
+              onChange={(e) => handleChange("pincode", e.target.value.replace(/\D/g, ""))}
+            />
+            {errors.pincode && <p className="error-text">{errors.pincode}</p>}
+          </div>
 
-          <input
-            placeholder="Pincode"
-            maxLength={6}
-            value={form.pincode}
-            onChange={(e) =>
-              handleChange("pincode", e.target.value.replace(/\D/g, ""))
-            }
-          />
-          {errors.pincode && <p className="error">{errors.pincode}</p>}
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={(e) => handleChange("password", e.target.value)}
+            />
+            {errors.password && <p className="error-text">{errors.password}</p>}
+          </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => handleChange("password", e.target.value)}
-          />
-          {errors.password && <p className="error">{errors.password}</p>}
-
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={form.confirmPassword}
-            onChange={(e) =>
-              handleChange("confirmPassword", e.target.value)
-            }
-          />
-          {errors.confirmPassword && (
-            <p className="error">{errors.confirmPassword}</p>
-          )}
-
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={form.confirmPassword}
+              onChange={(e) => handleChange("confirmPassword", e.target.value)}
+            />
+            {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
+          </div>
         </div>
 
-        <button type="submit">Register</button>
+        <button type="submit" style={{ marginTop: '10px' }}>Register</button>
       </form>
 
-      <p className="signup-text">
-        Already have account?{" "}
-        <span className="link" onClick={onBack}>
-          Login
-        </span>
-      </p>
+      <div className="create-account-row">
+        <span>Already have account?</span>
+        <span className="link" onClick={onBack}>Login</span>
+      </div>
     </>
   );
 };

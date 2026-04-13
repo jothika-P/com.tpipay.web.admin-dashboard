@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
 import OtpForm from "../components/OtpForm";
@@ -6,28 +6,10 @@ import OtpForm from "../components/OtpForm";
 import logo from "../assets/logo.png";
 import "../styles/auth.css";
 
-import img1 from "../assets/img1.png";
-import img2 from "../assets/img2.png";
-import img3 from "../assets/img3.png";
-import img4 from "../assets/img4.png";
-import img5 from "../assets/img5.png";
-import img6 from "../assets/img6.png";
-
 export default function Auth() {
   const [step, setStep] = useState("login");
   const [otpType, setOtpType] = useState(""); 
-  const [index, setIndex] = useState(0);
   const [animate, setAnimate] = useState(false);
-
-  const images = [img1, img2, img3, img4, img5, img6];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleStepChange = (next) => {
     setAnimate(true);
@@ -38,7 +20,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="container">
+    <div className="auth-bg-container">
 
       <div className="shape shape1"></div>
       <div className="shape shape2"></div>
@@ -48,52 +30,40 @@ export default function Auth() {
 
       <div className="card">
 
-        {/* LEFT */}
+        {/* LEFT PANEL */}
         <div className="left">
-          <div className="badge">🔐 Secure Onboarding Portal</div>
+          <div className="badge">🔐 Trusted & Secure Fintech Platform</div>
 
           <h1>
-            Create your account with a <br />
-            premium fintech onboarding experience
+            Power your business with smarter payments
           </h1>
 
           <p className="desc">
-            Secure, fast and modern onboarding for merchants.
+            Fast, secure, and reliable solutions to manage transactions, onboard merchants, and scale effortlessly
           </p>
 
           <div className="features">
-            <p>✔ Easy registration</p>
-            <p>✔ Secure login</p>
-            <p>✔ Fast approval</p>
-            <p>✔ Digital payments</p>
-          </div>
-
-          <div className="image-wrapper">
-            {images.map((img, i) => (
-              <img
-                key={i}
-                src={img}
-                alt=""
-                className={`slider-image ${
-                  i === index
-                    ? "active"
-                    : i === (index - 1 + images.length) % images.length
-                    ? "prev"
-                    : ""
-                }`}
-              />
-            ))}
+            <p>✔ Instant onboarding</p>
+            <p>✔ Bank-grade security</p>
+            <p>✔ Real-time transactions</p>
+            <p>✔ Seamless payment experience</p>
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT PANEL - CONTENT ONLY */}
         <div className="right">
-
-          <div className="right-logo">
-            <img src={logo} alt="logo" />
-          </div>
-
+          
           <div className={`auth-box ${animate ? "fade-out" : "fade-in"}`}>
+            
+            {/* COMMON HEADER FOR BOTH LOGIN & REGISTER */}
+            <div className="auth-header">
+               <img src={logo} alt="logo" className="auth-logo" />
+               <h2>
+                 {step === "login" && "Sign In"}
+                 {step === "register" && "Create Account"}
+                 {step === "otp" && "Verification"}
+               </h2>
+            </div>
 
             {/* LOGIN */}
             {step === "login" && (
@@ -103,6 +73,7 @@ export default function Auth() {
                   handleStepChange("otp");
                 }}
                 onSignup={() => handleStepChange("register")}
+                hideTitle={true} /* PASS PROP TO HIDE INTERNAL H2 */
               />
             )}
 
@@ -114,6 +85,7 @@ export default function Auth() {
                   handleStepChange("otp");
                 }}
                 onBack={() => handleStepChange("login")}
+                hideTitle={true} /* PASS PROP TO HIDE INTERNAL H2 */
               />
             )}
 

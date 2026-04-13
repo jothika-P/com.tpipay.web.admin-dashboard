@@ -1,12 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import KYC from "./pages/KYC";
 import Analytics from "./pages/Analytics";
-import RmDashboard from "./pages/RmDashboard";
-import LegalTeamDashboard from "./pages/LegalTeamDashboard";
+import Merchants from "./pages/Merchants";
+import CreateMerchant from "./pages/CreateMerchant";
+import MerchantDetails from "./pages/MerchantDetails";
+import KycDetails from "./pages/KycDetails";
+import KycDocuments from "./pages/KycDocuments";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import MainLayout from "./layout/MainLayout";
@@ -18,35 +20,11 @@ export default function AppRoutes() {
       {/* AUTH */}
       <Route path="/" element={<Auth />} />
 
-      {/* ADMIN + LEGAL DASHBOARD */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={["ADMIN", "LEGALTEAM"]}>
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* RM */}
-      <Route
-        path="/rm"
-        element={
-          <ProtectedRoute allowedRoles={["RM"]}>
-            <MainLayout>
-              <RmDashboard />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* USERS */}
+      {/* ADMIN */}
       <Route
         path="/users"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "LEGALTEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <MainLayout>
               <Users />
             </MainLayout>
@@ -54,7 +32,39 @@ export default function AppRoutes() {
         }
       />
 
-      {/* KYC */}
+      {/* MERCHANTS (ADMIN + RM) */}
+      <Route
+        path="/merchants"
+        element={
+          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+            <MainLayout>
+              <Merchants />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/merchants/create"
+        element={
+          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+            <MainLayout>
+              <CreateMerchant />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/merchants/view/:id"
+        element={
+          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+            <MainLayout>
+              <MerchantDetails />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* KYC (ADMIN + RM + LEGALTEAM) */}
       <Route
         path="/kyc"
         element={
@@ -65,12 +75,32 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/kyc/details/:id"
+        element={
+          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
+            <MainLayout>
+              <KycDetails />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kyc/documents/:id"
+        element={
+          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
+            <MainLayout>
+              <KycDocuments />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
 
-      {/* ANALYTICS */}
+      {/* ANALYTICS (ADMIN + LEGALTEAM only) */}
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "LEGALTEAM"]}>
             <MainLayout>
               <Analytics />
             </MainLayout>
@@ -78,17 +108,7 @@ export default function AppRoutes() {
         }
       />
 
-      {/* LEGAL TEAM DASHBOARD (optional separate page) */}
-      <Route
-        path="/legal"
-        element={
-          <ProtectedRoute allowedRoles={["LEGALTEAM", "ADMIN"]}>
-            <LegalTeamDashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* FALLBACK */}
+      {/* DEFAULT */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
