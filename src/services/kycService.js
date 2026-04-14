@@ -1,6 +1,6 @@
 import api from "./api";
 
-/* ================= KYC ================= */
+/* ================= KYC ================= */  
 
 // initiate KYC
 export const initiateKyc = (data) =>
