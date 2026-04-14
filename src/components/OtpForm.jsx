@@ -39,29 +39,29 @@ const OtpForm = ({ otpType, goToLogin }) => {
       return;
     }
 
-    const res = await verifyOtp(finalOtp);
+    // ✅ GET sessionId (NEW FIX)
+    const sessionId = sessionStorage.getItem("sessionId");
+
+    const res = await verifyOtp(sessionId, finalOtp);
 
     if (!res?.success) {
-      alert("Invalid OTP");
+      alert(res.error || "Invalid OTP");
       return;
     }
 
-    const role = (res.role || "").toUpperCase();
-
-    // SAVE AUTH
-    localStorage.setItem("token", res.token);
-    localStorage.setItem("role", role);
+    // ✅ FIX ROLE
+    const role = res.user?.role || "";
 
     console.log("LOGIN ROLE:", role);
 
-    // ✅ FIXED ROLE NAVIGATION
+    // ✅ NAVIGATION (UPDATED ROLE NAMES)
     if (role === "ADMIN") {
       navigate("/users", { replace: true });
     } 
-    else if (role === "RM") {
-      navigate("/kyc", { replace: true });   // 🔥 FIX: RM goes to KYC
+    else if (role === "RELATIONSHIP_MANAGER") {
+      navigate("/kyc", { replace: true });
     } 
-    else if (role === "LEGALTEAM") {
+    else if (role === "LEGAL_TEAM") {
       navigate("/analytics", { replace: true });
     } 
     else {

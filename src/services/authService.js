@@ -1,112 +1,85 @@
-// const BASE_URL = "https://great-dryers-attack.loca.lt";
+import api from './api';
+import { encryptPassword } from '../utils/encryption';
 
-// export const getPublicKey = async () => {
-//   const res = await fetch(`${BASE_URL}/api/auth/public-key`, {
-//     method: "GET",
-//     headers: {
-//       "bypass-tunnel-reminder": "true",   // custom header
-//       "Content-Type": "application/json"
-//     }
-//   });
-//   return res.json();
-// };
-
-
-// export const loginUser = async ({ username, password }) => {
-//   try {
-//     // 1️⃣ Get public key
-//     const { publicKey } = await getPublicKey();
-
-//     // ⚠️ TEMP (replace with RSA later)
-//     const encryptedPassword = btoa(password);
-
-//     // 2️⃣ Call initiate login
-//     const res = await fetch(`${BASE_URL}/api/auth/initiate-login`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({
-//         username,
-//         encryptedPassword,
-//       }),
-//     });
-
-//     const data = await res.json();
-
-//     return {
-//       success: true,
-//       sessionId: data.sessionId,
-//     };
-//   } catch (err) {
-//     return { success: false };
-//   }
-// };
-
-// export const verifyOtp = async (sessionId, otp) => {
-//   try {
-//     const res = await fetch(`${BASE_URL}/api/auth/verify-otp`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({
-//         sessionId,
-//         otp,
-//       }),
-//     });
-
-//     const data = await res.json();
-
-//     return {
-//       success: true,
-//       token: data.token,
-//       role: data.user?.role,
-//     };
-//   } catch (err) {
-//     return { success: false };
-//   }
-// };
-
-
-// ✅ LOGIN API (REQUIRED)
-export const loginUser = async ({ username, password }) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (!username || !password) {
-        resolve({ success: false });
-        return;
-      }
-
-      resolve({ success: true });
-    }, 300);
-  });
+/**
+ * Step 1: Get Public Key
+ */
+export const getPublicKey = async () => {
+  try {
+    const response = await api.get('/api/auth/public-key'); // ✅ FIXED PATH
+    return response.data; // { publicKey: "..." }
+  } catch (error) {
+    console.error('Error fetching public key:', error);
+    throw error;
+  }
 };
 
-// ✅ OTP VERIFY (ROLE BASED)
-export const verifyOtp = async (otp) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("OTP RECEIVED:", otp);
+/**
+ * Step 2 & 3: Initiate Login (includes encryption)
+ */
+export const loginUser = async ({ username, password }) => {
+  try {
+    const { publicKey } = await getPublicKey();
 
-      let role = null;
+    const encryptedPassword = encryptPassword(password, publicKey);
 
-      if (otp === "111111") {
-        role = "ADMIN";
-      } else if (otp === "222222") {
-        role = "RM";
-      } else if (otp === "333333") {
-        role = "LEGALTEAM";
-      } else {
-        resolve({ success: false });
-        return;
-      }
+    const response = await api.post('/api/auth/initiate-login', { // ✅ FIXED PATH
+      username,
+      encryptedPassword,
+    });
 
-      resolve({
-        success: true,
-        token: "dummy-token",
-        role,
-      });
-    }, 300);
-  });
+    return {
+      success: true,
+      sessionId: response.data.sessionId,
+    };
+  } catch (error) {
+    console.error('Login initiation failed:', error);
+    const errorMessage = error.response?.data?.message || 'Invalid credentials';
+    return {
+      success: false,
+      error: errorMessage,
+      status: error.response?.status,
+    };
+  }
+};
+
+/**
+ * Step 4 & 5: Verify OTP
+ */
+export const verifyOtp = async (sessionId, otp) => {
+  try {
+    const response = await api.post('/api/auth/verify-otp', { // ✅ FIXED PATH
+      sessionId,
+      otp,
+    });
+
+    const { token, user } = response.data;
+
+    // ✅ STORE AUTH (already correct)
+    sessionStorage.setItem('token', token);
+    sessionStorage.setItem('user', JSON.stringify(user));
+    sessionStorage.setItem('role', user.role);
+
+    return {
+      success: true,
+      token,
+      user,
+    };
+  } catch (error) {
+    console.error('OTP verification failed:', error);
+    const errorMessage = error.response?.data?.message || 'Invalid OTP';
+    return {
+      success: false,
+      error: errorMessage,
+      status: error.response?.status,
+    };
+  }
+};
+
+/**
+ * Logout utility
+ */
+export const logout = () => {
+  sessionStorage.clear();
+  window.location.href = '/login';
 };

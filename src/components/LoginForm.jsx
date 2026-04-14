@@ -16,10 +16,13 @@ const LoginForm = ({ onSuccess, onSignup, hideTitle }) => {
     const res = await loginUser(form);
 
     if (res.success) {
+      // ✅ STORE sessionId (NEW FIX)
+      sessionStorage.setItem("sessionId", res.sessionId);
+
       localStorage.setItem("tempRole", res.tempRole);
       onSuccess();
     } else {
-      alert("Invalid login");
+      alert(res.error || "Invalid login");
     }
   };
 
