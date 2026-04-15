@@ -40,7 +40,7 @@ const OtpForm = ({ otpType, goToLogin }) => {
     }
 
     // ✅ GET sessionId (NEW FIX)
-    const sessionId = sessionStorage.getItem("sessionId");
+    const sessionId = localStorage.getItem("sessionId");
 
     const res = await verifyOtp(sessionId, finalOtp);
 
@@ -49,19 +49,19 @@ const OtpForm = ({ otpType, goToLogin }) => {
       return;
     }
 
-    // ✅ FIX ROLE
-    const role = res.user?.role || "";
+    // ✅ ROLE
+    const role = res.role;
 
-    console.log("LOGIN ROLE:", role);
+    console.log("LOGIN SUCCESS! ROLE:", role);
 
-    // ✅ NAVIGATION (UPDATED ROLE NAMES)
+    // ✅ NAVIGATION
     if (role === "ADMIN") {
       navigate("/users", { replace: true });
     } 
-    else if (role === "RELATIONSHIP_MANAGER") {
+    else if (role === "RM") {
       navigate("/kyc", { replace: true });
     } 
-    else if (role === "LEGAL_TEAM") {
+    else if (role === "LEGALTEAM") {
       navigate("/analytics", { replace: true });
     } 
     else {

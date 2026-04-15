@@ -17,9 +17,7 @@ const LoginForm = ({ onSuccess, onSignup, hideTitle }) => {
 
     if (res.success) {
       // ✅ STORE sessionId (NEW FIX)
-      sessionStorage.setItem("sessionId", res.sessionId);
-
-      localStorage.setItem("tempRole", res.tempRole);
+      localStorage.setItem("sessionId", res.sessionId);
       onSuccess();
     } else {
       alert(res.error || "Invalid login");

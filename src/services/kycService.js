@@ -1,61 +1,134 @@
 import api from "./api";
 
-/* ================= KYC ================= */  
-
-// initiate KYC
-export const initiateKyc = (data) =>
-  api.post("/kyc/initiate", data);
-
-// get single KYC
-export const getKycById = (kycId) =>
-  api.get(`/kyc/${kycId}`);
-
-// get KYC by merchant
-export const getKycByMerchant = (merchantId) =>
-  api.get(`/kyc/merchant/${merchantId}`);
-
-// approve
-export const approveKyc = (kycId) =>
-  api.post(`/kyc/${kycId}/approve`);
-
-// reject
-export const rejectKyc = (kycId) =>
-  api.post(`/kyc/${kycId}/reject`);
-
-/* ================= DOCUMENTS ================= */
-
-export const uploadDocument = (kycId, type, file) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  return api.post(`/kyc/${kycId}/documents/${type}`, formData);
+/**
+ * 🔍 KYC RETRIEVAL
+ */
+export const getKycById = async (kycId) => {
+  try {
+    const res = await api.get(`kyc/${kycId}`);
+    return res.data;
+  } catch (err) {
+    console.error("getKycById error:", err);
+    throw err.response?.data?.message || "Failed to fetch KYC details";
+  }
 };
 
-export const updateDocument = (kycId, type, file) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  return api.put(`/kyc/${kycId}/documents/${type}`, formData);
+export const getKycByMerchant = async (merchantId) => {
+  try {
+    const url = merchantId ? `kyc/merchant/${merchantId}` : `kyc`;
+    const res = await api.get(url);
+    return res.data;
+  } catch (err) {
+    console.error("getKycByMerchant error:", err);
+    throw err.response?.data?.message || "Failed to fetch KYC list";
+  }
 };
 
-export const getDocuments = (kycId) =>
-  api.get(`/kyc/${kycId}/documents`);
+/**
+ * ✅ ACTIONS
+ */
+export const approveKyc = async (kycId) => {
+  try {
+    const res = await api.post(`kyc/${kycId}/approve`);
+    return res.data;
+  } catch (err) {
+    console.error("approveKyc error:", err);
+    throw err.response?.data?.message || "Failed to approve KYC";
+  }
+};
 
-export const getDocumentById = (kycId, docId) =>
-  api.get(`/kyc/${kycId}/documents/${docId}`);
+export const rejectKyc = async (kycId) => {
+  try {
+    const res = await api.post(`kyc/${kycId}/reject`);
+    return res.data;
+  } catch (err) {
+    console.error("rejectKyc error:", err);
+    throw err.response?.data?.message || "Failed to reject KYC";
+  }
+};
 
-export const deleteDocument = (kycId, docId) =>
-  api.delete(`/kyc/${kycId}/documents/${docId}`);
+/**
+ * 📂 DOCUMENTS
+ */
+export const getDocuments = async (kycId) => {
+  try {
+    const res = await api.get(`kyc/${kycId}/documents`);
+    return res.data;
+  } catch (err) {
+    console.error("getDocuments error:", err);
+    throw err.response?.data?.message || "Failed to fetch documents";
+  }
+};
 
-export const downloadZip = (kycId) =>
-  api.get(`/kyc/${kycId}/documents/download-zip`, {
-    responseType: "blob",
-  });
+export const uploadDocument = async (kycId, type, file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post(`kyc/${kycId}/documents/${type}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return res.data;
+  } catch (err) {
+    console.error("uploadDocument error:", err);
+    throw err.response?.data?.message || "Failed to upload document";
+  }
+};
 
-/* ================= NOTES ================= */
+export const updateDocument = async (kycId, type, file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.put(`kyc/${kycId}/documents/${type}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return res.data;
+  } catch (err) {
+    console.error("updateDocument error:", err);
+    throw err.response?.data?.message || "Failed to update document";
+  }
+};
 
-export const addNote = (kycId, note) =>
-  api.post(`/kyc/${kycId}/notes`, { note });
+export const deleteDocument = async (kycId, docId) => {
+  try {
+    const res = await api.delete(`kyc/${kycId}/documents/${docId}`);
+    return res.data;
+  } catch (err) {
+    console.error("deleteDocument error:", err);
+    throw err.response?.data?.message || "Failed to delete document";
+  }
+};
 
-export const getNotes = (kycId) =>
-  api.get(`/kyc/${kycId}/notes`);
+export const downloadZip = async (kycId) => {
+  try {
+    const res = await api.get(`kyc/${kycId}/documents/download-zip`, {
+      responseType: "blob",
+    });
+    return res;
+  } catch (err) {
+    console.error("downloadZip error:", err);
+    throw "Failed to download documents zip";
+  }
+};
+
+/**
+ * 📝 NOTES
+ */
+export const getNotes = async (kycId) => {
+  try {
+    const res = await api.get(`kyc/${kycId}/notes`);
+    return res.data;
+  } catch (err) {
+    console.error("getNotes error:", err);
+    throw err.response?.data?.message || "Failed to fetch notes";
+  }
+};
+
+export const addNote = async (kycId, note) => {
+  try {
+    const res = await api.post(`kyc/${kycId}/notes`, { note });
+    return res.data;
+  } catch (err) {
+    console.error("addNote error:", err);
+    throw err.response?.data?.message || "Failed to add note";
+  }
+};

@@ -12,6 +12,8 @@ export default function MainLayout({ children }) {
   const dropdownRef = useRef();
 
   const role = (localStorage.getItem("role") || "").toUpperCase();
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userName = userData.name || "System User";
 
   const isAdmin = role === "ADMIN";
   const isRM = role === "RM";
@@ -114,7 +116,7 @@ export default function MainLayout({ children }) {
             <div className="user-dropdown-wrapper" ref={dropdownRef}>
               <div className="user-profile-trigger" onClick={() => setOpen(!open)}>
                 <div className="user-info-text">
-                  <p className="user-name">Admin User</p>
+                  <p className="user-name">{userName}</p>
                   <p className="user-role">{role}</p>
                 </div>
                 <div className="user-avatar-small">

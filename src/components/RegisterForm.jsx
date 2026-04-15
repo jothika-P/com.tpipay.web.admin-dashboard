@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { State, City } from "country-state-city";
 
+import { registerUser } from "../services/authService";
+
 const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    username: "", // Added username
     mobile: "",
     state: "",
     city: "",
@@ -13,6 +16,7 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
     confirmPassword: ""
   });
 
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const handleChange = (field, value) => {
@@ -30,6 +34,7 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
 
     if (data.name && data.name.length < 3) err.name = "Min 3 chars";
     if (data.email && !emailRegex.test(data.email)) err.email = "Invalid email";
+    if (data.username && data.username.length < 3) err.username = "Min 3 chars";
     if (data.mobile && !mobileRegex.test(data.mobile)) err.mobile = "Invalid mobile";
     if (data.pincode && !pincodeRegex.test(data.pincode)) err.pincode = "Invalid pincode";
     if (data.password && data.password.length < 6) err.password = "Min 6 chars";
@@ -42,10 +47,35 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
   const states = State.getStatesOfCountry("IN");
   const cities = form.state ? City.getCitiesOfState("IN", form.state) : [];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const err = validate(form);
-    if (Object.keys(err).length === 0) onSuccess();
+    if (Object.keys(err).length > 0) return;
+
+    setLoading(true);
+    try {
+      const res = await registerUser({
+        name: form.name,
+        email: form.email,
+        username: form.username || form.email,
+        mobile: form.mobile,
+        state: form.state,
+        city: form.city,
+        pincode: form.pincode,
+        password: form.password
+      });
+
+      if (res.success) {
+        alert("Registration Successful! Please verify OTP.");
+        onSuccess();
+      } else {
+        alert(res.error || "Registration failed");
+      }
+    } catch (err) {
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -71,6 +101,15 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
               onChange={(e) => handleChange("email", e.target.value)}
             />
             {errors.email && <p className="error-text">{errors.email}</p>}
+          </div>
+
+          <div className="input-group">
+            <input
+              placeholder="Username"
+              value={form.username}
+              onChange={(e) => handleChange("username", e.target.value)}
+            />
+            {errors.username && <p className="error-text">{errors.username}</p>}
           </div>
 
           <div className="input-group">
@@ -128,7 +167,9 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
           </div>
         </div>
 
-        <button type="submit" style={{ marginTop: '10px' }}>Register</button>
+        <button type="submit" disabled={loading} style={{ marginTop: '10px' }}>
+          {loading ? "Registering..." : "Register"}
+        </button>
       </form>
 
       <div className="create-account-row">

@@ -1,21 +1,63 @@
 import api from "./api";
 
-// ✅ Overall Platform Analytics
-export const getOverallAnalytics = (params) =>
-  api.get("/analytics/payments/overall", { params });
+/**
+ * 📊 OVERALL PLATFORM ANALYTICS
+ */
+export const getOverallAnalytics = async (params) => {
+  try {
+    const res = await api.get("analytics/payments/overall", { params });
+    return res.data;
+  } catch (err) {
+    console.error("getOverallAnalytics error:", err);
+    throw err.response?.data?.message || "Failed to fetch overall analytics";
+  }
+};
 
-// ✅ Merchant Summary
-export const getMerchantSummary = (merchantId, params) =>
-  api.get(`/analytics/merchants/${merchantId}/summary`, { params });
+/**
+ * 🏪 MERCHANT SPECIFIC ANALYTICS
+ */
+export const getMerchantSummary = async (merchantId, params) => {
+  try {
+    const res = await api.get(`analytics/merchants/${merchantId}/summary`, { params });
+    return res.data;
+  } catch (err) {
+    console.error("getMerchantSummary error:", err);
+    throw err.response?.data?.message || `Failed to fetch summary for merchant ${merchantId}`;
+  }
+};
 
-// ✅ Merchant Payments List
-export const getMerchantPayments = (merchantId, params) =>
-  api.get(`/analytics/merchants/${merchantId}/payments`, { params });
+export const getMerchantPayments = async (merchantId, params) => {
+  try {
+    const res = await api.get(`analytics/merchants/${merchantId}/payments`, { params });
+    return res.data;
+  } catch (err) {
+    console.error("getMerchantPayments error:", err);
+    throw err.response?.data?.message || `Failed to fetch payments for merchant ${merchantId}`;
+  }
+};
 
-// ✅ RM Summary
-export const getRMSummary = (rmId, params) =>
-  api.get(`/analytics/relationship-managers/${rmId}/summary`, { params });
+/**
+ * 🧑‍💼 RM SPECIFIC ANALYTICS
+ */
+export const getRMSummary = async (rmId, params) => {
+  try {
+    const res = await api.get(`analytics/relationship-managers/${rmId}/summary`, { params });
+    return res.data;
+  } catch (err) {
+    console.error("getRMSummary error:", err);
+    throw err.response?.data?.message || `Failed to fetch summary for RM ${rmId}`;
+  }
+};
 
-// ✅ Users Search (for filter)
-export const searchUsers = (payload) =>
-  api.post("/users/search", payload);
+/**
+ * 🔍 USER SEARCH (Used to populate RM filters)
+ */
+export const searchUsers = async (payload) => {
+  try {
+    const res = await api.post("users/search", payload);
+    return res.data;
+  } catch (err) {
+    console.error("searchUsers error:", err);
+    throw err.response?.data?.message || "Failed to load relationship managers";
+  }
+};

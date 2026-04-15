@@ -7,7 +7,7 @@ const api = axios.create({
 
 /* ================= REQUEST INTERCEPTOR ================= */
 api.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -22,9 +22,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      sessionStorage.removeItem("token");
-      window.location.href = "/login";
+    const errorMsg = error.response?.data?.message || "";
+    
+    if (error.response?.status === 401 || errorMsg.includes("Authenticated user not found")) {
+      localStorage.clear();
+      window.location.href = "/";
     }
 
     return Promise.reject(error);
