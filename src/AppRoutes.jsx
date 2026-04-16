@@ -36,7 +36,7 @@ export default function AppRoutes() {
       <Route
         path="/merchants"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER"]}>
             <MainLayout>
               <Merchants />
             </MainLayout>
@@ -46,7 +46,7 @@ export default function AppRoutes() {
       <Route
         path="/merchants/create"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER"]}>
             <MainLayout>
               <CreateMerchant />
             </MainLayout>
@@ -56,7 +56,7 @@ export default function AppRoutes() {
       <Route
         path="/merchants/view/:id"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER"]}>
             <MainLayout>
               <MerchantDetails />
             </MainLayout>
@@ -68,7 +68,7 @@ export default function AppRoutes() {
       <Route
         path="/kyc"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM"]}>
             <MainLayout>
               <KYC />
             </MainLayout>
@@ -78,7 +78,7 @@ export default function AppRoutes() {
       <Route
         path="/kyc/details/:id"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM"]}>
             <MainLayout>
               <KycDetails />
             </MainLayout>
@@ -88,7 +88,7 @@ export default function AppRoutes() {
       <Route
         path="/kyc/documents/:id"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RM", "LEGALTEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM"]}>
             <MainLayout>
               <KycDocuments />
             </MainLayout>
@@ -100,7 +100,7 @@ export default function AppRoutes() {
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "LEGALTEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "LEGAL_TEAM"]}>
             <MainLayout>
               <Analytics />
             </MainLayout>

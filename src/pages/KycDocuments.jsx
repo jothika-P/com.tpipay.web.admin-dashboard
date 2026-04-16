@@ -80,8 +80,8 @@ export default function KycDocuments() {
     <div className="analytics-container">
       {/* HEADER SECTION */}
       <div className="header-section" style={{ textAlign: 'left', marginBottom: '2rem' }}>
-        <button 
-          onClick={() => navigate("/kyc")} 
+        <button
+          onClick={() => navigate("/kyc")}
           style={{ background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '1rem', padding: 0 }}
         >
           <ArrowLeft size={16} /> Back to KYC
@@ -90,15 +90,6 @@ export default function KycDocuments() {
           <div>
             <h1 className="title" style={{ fontSize: '2.5rem', textAlign: 'left', margin: 0 }}>Documents</h1>
             <p className="subtitle" style={{ margin: '0' }}>Manage verification files for Merchant #{id}.</p>
-          </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="action-btn" onClick={fetchDocs} disabled={loading} style={{ height: '48px', width: '48px' }}>
-              <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-            </button>
-            <label className="add-btn" style={{ height: '48px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 24px', cursor: 'pointer' }}>
-              <Plus size={18} /> Upload New
-              <input type="file" hidden onChange={(e) => handleUpload(e)} disabled={uploading} />
-            </label>
           </div>
         </div>
       </div>
@@ -125,8 +116,8 @@ export default function KycDocuments() {
           ))
         ) : documents.length === 0 ? (
           <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '100px 0', opacity: 0.5 }}>
-             <FileText size={64} style={{ margin: '0 auto 20px', display: 'block' }} />
-             <p>No documents uploaded yet.</p>
+            <FileText size={64} style={{ margin: '0 auto 20px', display: 'block' }} />
+            <p>No documents uploaded yet.</p>
           </div>
         ) : (
           documents.map((doc) => (
@@ -137,7 +128,7 @@ export default function KycDocuments() {
                 </div>
                 <div style={{ flex: 1, overflow: 'hidden' }}>
                   <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {doc.name || doc.documentType || 'Unnamed Document'}
+                    {doc.name || doc.fileName || (doc.documentType || doc.type || 'Document').replace(/_/g, ' ')}
                   </h4>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--success)', fontSize: '12px' }}>
                     <CheckCircle2 size={12} />
@@ -151,7 +142,14 @@ export default function KycDocuments() {
                   ID: {doc.id.toString().slice(-8)}
                 </span>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="action-btn" onClick={() => window.open(doc.url || `/api/kyc/${id}/documents/${doc.id}`, '_blank')} title="View">
+                  <button 
+                    className="action-btn" 
+                    onClick={() => {
+                      const viewUrl = doc.presignedUrl || doc.url || `/api/kyc/${id}/documents/${doc.id}`;
+                      window.open(viewUrl, '_blank');
+                    }} 
+                    title="View Document"
+                  >
                     <Eye size={16} />
                   </button>
                   <label className="action-btn" style={{ cursor: 'pointer' }} title="Update">
@@ -168,18 +166,56 @@ export default function KycDocuments() {
         )}
       </div>
 
-      {/* QUICK UPLOAD SLOTS (ADHAAR, PAN, etc) */}
+      {/* REQUIRED UPLOADS SECTION */}
       <div style={{ marginTop: '40px' }}>
-        <h3 style={{ marginBottom: '20px', fontSize: '18px' }}>Required Uploads</h3>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {['AADHAAR', 'PAN_CARD', 'BUSINESS_PROOF'].map(type => (
-            <label key={type} className="glass-card" style={{ flex: 1, minWidth: '200px', cursor: 'pointer', textAlign: 'center', padding: '24px', borderStyle: 'dashed', borderDashArray: '8' }}>
-              <div style={{ color: 'var(--secondary)', marginBottom: '12px' }}><Upload size={24} style={{ margin: '0 auto' }} /></div>
-              <p style={{ margin: '0 0 4px 0', fontWeight: '600', fontSize: '14px' }}>{type.replace('_', ' ')}</p>
-              <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-muted)' }}>Click to upload file</p>
-              <input type="file" hidden onChange={e => handleUpload(e, type)} />
-            </label>
-          ))}
+        <h3 style={{ marginBottom: '24px', fontSize: '20px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Upload size={20} style={{ color: 'var(--primary)' }} /> Required Verification Documents
+        </h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+          {['AADHAR', 'PAN', 'BUSINESS_PROOF']
+.map(type => {
+            const existingDoc = documents.find(d => d.documentType === type || d.type === type);
+            return (
+              <label key={type} className="glass-card" style={{ 
+                cursor: 'pointer', textAlign: 'center', padding: '30px 20px', 
+                borderStyle: existingDoc ? 'solid' : 'dashed', 
+                borderColor: existingDoc ? 'var(--success)' : 'var(--glass-border)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative',
+                background: existingDoc ? 'rgba(34, 197, 94, 0.03)' : 'rgba(255,255,255,0.01)'
+              }}>
+                <div style={{ 
+                  color: existingDoc ? 'var(--success)' : 'var(--secondary)', 
+                  marginBottom: '16px',
+                  transform: existingDoc ? 'scale(1.1)' : 'scale(1)',
+                  transition: 'transform 0.3s'
+                }}>
+                  {existingDoc ? <CheckCircle2 size={32} style={{ margin: '0 auto' }} /> : <Upload size={32} style={{ margin: '0 auto' }} />}
+                </div>
+                
+                <p style={{ margin: '0 0 6px 0', fontWeight: '700', fontSize: '15px', color: existingDoc ? 'var(--success)' : 'inherit' }}>
+                  {type.replace(/_/g, ' ')}
+                </p>
+                
+                <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>
+                  {existingDoc ? `Verified: ${existingDoc.name || 'File'}` : "Required for compliance"}
+                </p>
+
+                {existingDoc && (
+                   <div style={{ position: 'absolute', top: '10px', right: '10px', fontSize: '10px', background: 'var(--success)', color: 'white', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
+                     UPLOADED
+                   </div>
+                )}
+
+                <input 
+                  type="file" 
+                  hidden 
+                  onChange={e => handleUpload(e, type)} 
+                  disabled={uploading}
+                />
+              </label>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-﻿/* =========================================================================
+/* =========================================================================
    GLOBAL THEME & RESET (Premium Responsive Design)
    ========================================================================= */
 
@@ -195,14 +195,11 @@ body {
 }
 
 .title {
-  font-size: clamp(2.25rem, 6vw, 3.5rem);
-  font-weight: 900;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 50%, #ffffff 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.8rem, 4vw, 2.75rem);
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+  letter-spacing: -0.02em;
   line-height: 1.1;
   position: relative;
 }
@@ -210,12 +207,11 @@ body {
 .title::after {
   content: '';
   position: absolute;
-  bottom: -1rem;
+  bottom: -0.75rem;
   left: 50%;
   transform: translateX(-50%);
   width: clamp(3.5rem, 10vw, 5rem);
   height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
   border-radius: 3px;
   box-shadow: var(--glow-primary);
 }
@@ -1005,6 +1001,91 @@ body {
   .kyc-filters input {
     min-width: 100%;
   }
+}
+/* ================= GOOGLE STYLE SEARCH (2 INPUTS) ================= */
+
+
+/* Input */
+.search-box input {
+  width: 100%;
+  padding: 12px 40px;
+  border-radius: 50px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+/* Focus effect 💜 */
+.search-box input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* Left icon */
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+}
+
+/* Clear button */
+.clear-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #64748b;
+}
+
+.clear-btn:hover {
+  color: #f87171;
+}
+
+/* Dropdown */
+.google-search select {
+  padding: 12px 16px;
+  border-radius: 50px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+  min-width: 160px;
+}
+
+/* ================= SUGGESTION DROPDOWN ================= */
+
+.search-box {
+  position: relative;
+  flex: 1;
+}
+
+.suggestions-box {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 9999;
+}
+
+.suggestion-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  color: #e2e8f0;
+}
+
+.suggestion-item:hover {
+  background: #1e293b;
+  color: white;
 }
 
 /* --- Original: Layout.css --- */
@@ -3523,4 +3604,120 @@ body {
   font-size: 12px;
   color: var(--success);
   font-weight: 700;
+}
+/* STATUS COLORS */
+.status-badge.approved { background: #22c55e; }
+.status-badge.pending { background: #f59e0b; }
+.status-badge.rejected { background: #ef4444; }
+.api-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.api-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.api-row label {
+  width: 120px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.api-row input {
+  flex: 1;
+  padding: 10px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: white;
+}
+
+.api-row button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #8b5cf6;
+  color: white;
+  font-size: 12px;
+}
+.status-badge {
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* APPROVED */
+.status-badge.approved {
+  background: rgba(34,197,94,0.15);
+  color: #22c55e;
+}
+
+/* PENDING */
+.status-badge.pending {
+  background: rgba(245,158,11,0.15);
+  color: #f59e0b;
+}
+
+/* REJECTED */
+.status-badge.rejected {
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
+}
+
+/* 🔽 Bank Dropdown Styling */
+.bank-dropdown {
+  width: 250px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e2e8f0;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+
+  /* Smooth effect */
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.bank-dropdown:hover {
+  border-color: #8b5cf6;
+  background: rgba(15, 23, 42, 1);
+}
+
+/* Focus */
+.bank-dropdown:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+/* Dropdown options */
+.bank-dropdown option {
+  background: #0b0b1a;
+  color: #e2e8f0;
+}
+
+/* Label styling */
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* === APPLY WHITE COLOR TO ALL SEARCH INPUTS === */
+input[type="search"],
+.search-input,
+.search-box input,
+.kyc-filters input,
+[placeholder*="search" i],
+[placeholder*="Search" i] {
+  color: #ffffff !important;
 }

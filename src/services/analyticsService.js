@@ -61,3 +61,14 @@ export const searchUsers = async (payload) => {
     throw err.response?.data?.message || "Failed to load relationship managers";
   }
 };
+export const getMerchantCounts = async (rmId) => {
+  try {
+    const res = await api.get("analytics/merchants/counts", {
+      params: rmId ? { rmId } : {}
+    });
+    return res.data;
+  } catch (err) {
+    console.error("getMerchantCounts error:", err);
+    throw err.response?.data?.message || "Failed to fetch merchant counts";
+  }
+};

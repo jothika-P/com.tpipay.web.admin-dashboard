@@ -39,7 +39,7 @@ const OtpForm = ({ otpType, goToLogin }) => {
       return;
     }
 
-    // ✅ GET sessionId (NEW FIX)
+    // ✅ GET sessionId
     const sessionId = localStorage.getItem("sessionId");
 
     const res = await verifyOtp(sessionId, finalOtp);
@@ -49,24 +49,15 @@ const OtpForm = ({ otpType, goToLogin }) => {
       return;
     }
 
-    // ✅ ROLE
-    const role = res.role;
+    console.log("LOGIN SUCCESS!");
 
-    console.log("LOGIN SUCCESS! ROLE:", role);
+    // ✅ STORE TOKEN + USER
+    sessionStorage.setItem("token", res.token);
+    sessionStorage.setItem("user", JSON.stringify(res.user));
+    localStorage.setItem("role", res.user.role);
 
-    // ✅ NAVIGATION
-    if (role === "ADMIN") {
-      navigate("/users", { replace: true });
-    } 
-    else if (role === "RM") {
-      navigate("/kyc", { replace: true });
-    } 
-    else if (role === "LEGALTEAM") {
-      navigate("/analytics", { replace: true });
-    } 
-    else {
-      navigate("/", { replace: true });
-    }
+    console.log("LOGIN SUCCESS! Navigating to Merchant Dashboard.");
+    navigate("/users", { replace: true });
   };
 
   return (

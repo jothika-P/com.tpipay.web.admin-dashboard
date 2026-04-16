@@ -23,6 +23,9 @@ export default function Merchants() {
     try {
       const payload = {
         query: searchTerm || "",
+        filters: [],
+        limit: perPage,
+        offset: (page - 1) * perPage,
       };
       
       const res = await searchMerchants(payload);
@@ -59,7 +62,7 @@ export default function Merchants() {
       {/* HEADER SECTION */}
       <div className="header-section" style={{ textAlign: 'left', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h1 className="title" style={{ fontSize: '2.5rem', textAlign: 'left', margin: 0 }}>Merchants</h1>
+          <h1 className="title" style={{ fontSize: '1.8rem', textAlign: 'left', margin: 0 }}>Merchants</h1>
           <p className="subtitle" style={{ margin: '0' }}>Monitor and manage onboarded business entities.</p>
         </div>
         <button className="add-btn" onClick={() => navigate("/merchants/create")} style={{ height: '50px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 24px' }}>
@@ -76,7 +79,7 @@ export default function Merchants() {
               placeholder="Search by business name or email..."
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-              style={{ paddingLeft: '45px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}
+              style={{ padding: '12px 16px 12px 45px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', color: 'white' }}
             />
           </div>
         </div>

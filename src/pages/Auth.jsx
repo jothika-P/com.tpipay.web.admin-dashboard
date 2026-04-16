@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import LoginForm from "../components/LoginForm";
-import RegisterForm from "../components/RegisterForm";
 import OtpForm from "../components/OtpForm";
+import RegisterForm from "../components/RegisterForm";
 
 import logo from "../assets/logo.png";
 import "../styles/auth.css";
@@ -19,6 +19,13 @@ export default function Auth() {
     }, 300);
   };
 
+  const headerTitle = () => {
+    if (step === "login") return "Sign In";
+    if (step === "register") return "Create Account";
+    if (step === "otp") return "Verification";
+    return "";
+  };
+
   return (
     <div className="auth-bg-container">
 
@@ -32,7 +39,7 @@ export default function Auth() {
 
         {/* LEFT PANEL */}
         <div className="left">
-          <div className="badge">🔐 Trusted & Secure Fintech Platform</div>
+          <div className="badge">🔐 Trusted &amp; Secure Fintech Platform</div>
 
           <h1>
             Power your business with smarter payments
@@ -55,14 +62,10 @@ export default function Auth() {
           
           <div className={`auth-box ${animate ? "fade-out" : "fade-in"}`}>
             
-            {/* COMMON HEADER FOR BOTH LOGIN & REGISTER */}
+            {/* COMMON HEADER */}
             <div className="auth-header">
                <img src={logo} alt="logo" className="auth-logo" />
-               <h2>
-                 {step === "login" && "Sign In"}
-                 {step === "register" && "Create Account"}
-                 {step === "otp" && "Verification"}
-               </h2>
+               <h2>{headerTitle()}</h2>
             </div>
 
             {/* LOGIN */}
@@ -73,7 +76,7 @@ export default function Auth() {
                   handleStepChange("otp");
                 }}
                 onSignup={() => handleStepChange("register")}
-                hideTitle={true} /* PASS PROP TO HIDE INTERNAL H2 */
+                hideTitle={true}
               />
             )}
 
@@ -81,11 +84,11 @@ export default function Auth() {
             {step === "register" && (
               <RegisterForm
                 onSuccess={() => {
-                  setOtpType("REGISTER"); 
+                  setOtpType("REGISTER");
                   handleStepChange("otp");
                 }}
                 onBack={() => handleStepChange("login")}
-                hideTitle={true} /* PASS PROP TO HIDE INTERNAL H2 */
+                hideTitle={true}
               />
             )}
 

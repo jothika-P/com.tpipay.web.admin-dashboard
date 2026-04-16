@@ -16,8 +16,8 @@ export default function MainLayout({ children }) {
   const userName = userData.name || "System User";
 
   const isAdmin = role === "ADMIN";
-  const isRM = role === "RM";
-  const isLegal = role === "LEGALTEAM";
+  const isRM = role === "RELATIONSHIP_MANAGER";
+  const isLegal = role === "LEGAL_TEAM";
 
   /* ================= MENU ================= */
   const menu =
@@ -144,11 +144,11 @@ export default function MainLayout({ children }) {
           <footer className="footer">
             <div className="footer-container">
               <div className="footer-left">
-                <h4 className="footer-logo">PaySecure</h4>
+                <h4 className="footer-logo">tpipay</h4>
                 <p>Trusted fintech infrastructure.</p>
               </div>
               <div className="footer-center">
-                <p>&copy; {new Date().getFullYear()} PaySecure Inc.</p>
+                <p>&copy; {new Date().getFullYear()} tpipay Inc.</p>
               </div>
               <div className="footer-right">
                 <span className="iso-badge">ISO 27001 Certified</span>

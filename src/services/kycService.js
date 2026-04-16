@@ -64,9 +64,7 @@ export const uploadDocument = async (kycId, type, file) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await api.post(`kyc/${kycId}/documents/${type}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
+    const res = await api.post(`kyc/${kycId}/documents/${type}`, formData);
     return res.data;
   } catch (err) {
     console.error("uploadDocument error:", err);
@@ -78,9 +76,7 @@ export const updateDocument = async (kycId, type, file) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await api.put(`kyc/${kycId}/documents/${type}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
+    const res = await api.put(`kyc/${kycId}/documents/${type}`, formData);
     return res.data;
   } catch (err) {
     console.error("updateDocument error:", err);
@@ -105,7 +101,15 @@ export const downloadZip = async (kycId) => {
     });
     return res;
   } catch (err) {
-    console.error("downloadZip error:", err);
+    if (err.response?.data instanceof Blob) {
+      const text = await err.response.data.text();
+      try {
+        const json = JSON.parse(text);
+        throw json.message || json.error || "Server error during ZIP generation";
+      } catch (e) {
+        throw "Failed to download documents zip";
+      }
+    }
     throw "Failed to download documents zip";
   }
 };

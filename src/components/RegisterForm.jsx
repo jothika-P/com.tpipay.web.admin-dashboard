@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { State, City } from "country-state-city";
+import { Eye, EyeOff } from "lucide-react";
 
 import { registerUser } from "../services/authService";
 
@@ -7,7 +8,7 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    username: "", // Added username
+    username: "",
     mobile: "",
     state: "",
     city: "",
@@ -18,6 +19,8 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (field, value) => {
     const updated = { ...form, [field]: value };
@@ -84,7 +87,6 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
 
       <form noValidate onSubmit={handleSubmit} style={{ margin: 0 }}>
         <div className="form-grid">
-          {/* Grouping Input + Error in a wrapper to prevent grid spacing issues */}
           <div className="input-group">
             <input
               placeholder="Full Name"
@@ -146,23 +148,63 @@ const RegisterForm = ({ onSuccess, onBack, hideTitle }) => {
             {errors.pincode && <p className="error-text">{errors.pincode}</p>}
           </div>
 
+          {/* Password with toggle */}
           <div className="input-group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => handleChange("password", e.target.value)}
-            />
+            <div style={{ position: "relative", width: "100%" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={form.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+                style={{ backgroundImage: "none", paddingRight: "34px" }}
+              />
+              <div
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "4px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  marginTop: "-12px",
+                  cursor: "pointer",
+                  color: "rgba(255, 255, 255, 0.6)",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </div>
+            </div>
             {errors.password && <p className="error-text">{errors.password}</p>}
           </div>
 
+          {/* Confirm Password with toggle */}
           <div className="input-group">
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={form.confirmPassword}
-              onChange={(e) => handleChange("confirmPassword", e.target.value)}
-            />
+            <div style={{ position: "relative", width: "100%" }}>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm Password"
+                value={form.confirmPassword}
+                onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                style={{ backgroundImage: "none", paddingRight: "34px" }}
+              />
+              <div
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: "absolute",
+                  right: "4px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  marginTop: "-12px",
+                  cursor: "pointer",
+                  color: "rgba(255, 255, 255, 0.6)",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </div>
+            </div>
             {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
           </div>
         </div>

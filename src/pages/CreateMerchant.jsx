@@ -72,7 +72,7 @@ export default function CreateMerchant() {
                 placeholder="e.g. Acme Corporation Pvt Ltd"
                 value={formData.legal_name}
                 onChange={(e) => setFormData({ ...formData, legal_name: e.target.value })}
-                style={{ width: '100%', paddingLeft: '45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                style={{ width: '100%', padding: '14px 16px 14px 45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px' }}
               />
             </div>
           </div>
@@ -88,7 +88,7 @@ export default function CreateMerchant() {
                 placeholder="e.g. Acme Store"
                 value={formData.business_name}
                 onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                style={{ width: '100%', paddingLeft: '45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                style={{ width: '100%', padding: '14px 16px 14px 45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px' }}
               />
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function CreateMerchant() {
                 placeholder="contact@business.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                style={{ width: '100%', paddingLeft: '45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                style={{ width: '100%', padding: '14px 16px 14px 45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px' }}
               />
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function CreateMerchant() {
                 placeholder="+1 (555) 000-0000"
                 value={formData.contact_number}
                 onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
-                style={{ width: '100%', paddingLeft: '45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                style={{ width: '100%', padding: '14px 16px 14px 45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px' }}
               />
             </div>
           </div>

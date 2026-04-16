@@ -4,7 +4,7 @@ import {
   upsertUser,
   deleteUser,
 } from "../services/userService";
-import { UserPlus, Search, Edit2, Trash2, X, ChevronLeft, ChevronRight, Loader2, Filter } from "lucide-react";
+import { UserPlus, Search, Edit2, Trash2, X, ChevronLeft, ChevronRight, Loader2, Filter, Eye } from "lucide-react";
 
 export default function Users() {
   // --- Data State ---
@@ -15,7 +15,6 @@ export default function Users() {
   // --- Filter/Pagination State ---
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
   const perPage = 10;
@@ -44,14 +43,6 @@ export default function Users() {
     if (roleFilter !== "all") {
       filters.push({ key: "role", value: roleFilter, operator: "=" });
     }
-    if (statusFilter !== "all") {
-      filters.push({
-        key: "isActive",
-        value: statusFilter === "Active" ? "true" : "false",
-        operator: "=",
-      });
-    }
-
     const payload = {
       query: search,
       filters: filters,
@@ -70,7 +61,7 @@ export default function Users() {
     } finally {
       setLoading(false);
     }
-  }, [search, roleFilter, statusFilter, page]);
+  }, [search, roleFilter, page]);
 
   useEffect(() => {
     fetchUsers();
@@ -97,7 +88,17 @@ export default function Users() {
       isActive: user.isActive,
     });
     setDrawerMode("edit");
-    setOpenMenu(null);
+  };
+
+  const handleOpenView = (user) => {
+    setFormData({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+    });
+    setDrawerMode("view");
   };
 
   const handleSubmit = async (e) => {
@@ -147,14 +148,14 @@ export default function Users() {
     <div className="analytics-container">
       {/* HEADER SECTION */}
       <div className="header-section" style={{ textAlign: 'left', marginBottom: '2rem' }}>
-        <h1 className="title" style={{ fontSize: '2.5rem', textAlign: 'left' }}>User Management</h1>
+        <h1 className="title" style={{ fontSize: '1.8rem', textAlign: 'left' }}>User Management</h1>
         <p className="subtitle" style={{ margin: '0' }}>Manage administrators, RMs, and platform agents.</p>
       </div>
 
       <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
         {/* FILTERS & SEARCH */}
         <div className="filter-section" style={{ borderRadius: '0', border: 'none', background: 'transparent', marginBottom: '0' }}>
-          <div className="filter-box" style={{ gridTemplateColumns: '2fr 1fr 1fr auto' }}>
+          <div className="filter-box" style={{ gridTemplateColumns: '2fr 1fr auto' }}>
             <div className="search-wrapper" style={{ position: 'relative' }}>
               <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
@@ -173,11 +174,6 @@ export default function Users() {
               <option value="BACKEND_AGENT">BACKEND AGENT</option>
             </select>
 
-            <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
-              <option value="all">All Status</option>
-              <option value="Active">Active Only</option>
-              <option value="Inactive">Inactive Only</option>
-            </select>
 
             <button className="add-btn" onClick={handleOpenAdd} style={{ height: '50px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <UserPlus size={18} /> Add User
@@ -242,11 +238,11 @@ export default function Users() {
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                        <button className="action-btn" onClick={() => handleOpenView(u)} title="View Details">
+                          <Eye size={16} />
+                        </button>
                         <button className="action-btn" onClick={() => handleOpenEdit(u)} title="Edit User">
                           <Edit2 size={16} />
-                        </button>
-                        <button className="action-btn" onClick={() => toggleStatus(u)} title="Toggle Status">
-                          <Filter size={16} />
                         </button>
                         <button className="action-btn" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(u.id)} title="Delete User">
                           <Trash2 size={16} />
@@ -281,7 +277,9 @@ export default function Users() {
         <div className="modal-overlay" onClick={() => setDrawerMode(null)}>
           <div className="small-dialog" onClick={(e) => e.stopPropagation()} style={{ width: '450px', background: 'var(--dark-bg)', border: '1px solid var(--glass-border)', boxShadow: '0 0 40px rgba(0,0,0,0.8)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.5rem' }}>{drawerMode === 'add' ? 'Create Platform User' : 'Edit User details'}</h2>
+              <h2 style={{ fontSize: '1.5rem' }}>
+                {drawerMode === 'add' ? 'Create Platform User' : drawerMode === 'edit' ? 'Edit User details' : 'User Profile Details'}
+              </h2>
               <button onClick={() => setDrawerMode(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
                 <X size={24} />
               </button>
@@ -292,10 +290,11 @@ export default function Users() {
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Full Name</label>
                 <input
                   required
+                  readOnly={drawerMode === 'view'}
                   placeholder="John Doe"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                  style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
                 />
               </div>
 
@@ -303,11 +302,12 @@ export default function Users() {
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Email Address</label>
                 <input
                   required
+                  readOnly={drawerMode === 'view'}
                   type="email"
                   placeholder="john@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                  style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
                 />
               </div>
 
@@ -315,9 +315,10 @@ export default function Users() {
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Role</label>
                   <select
+                    disabled={drawerMode === 'view'}
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                    style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
                   >
                     <option value="ADMIN">ADMIN</option>
                     <option value="RELATIONSHIP_MANAGER">RM</option>
@@ -329,9 +330,10 @@ export default function Users() {
                   <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Status</label>
                     <select
+                      disabled={drawerMode === 'view'}
                       value={formData.isActive ? "Active" : "Inactive"}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.value === "Active" })}
-                      style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                      style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
                     >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
@@ -349,27 +351,40 @@ export default function Users() {
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                    style={{ width: '100%', padding: '12px 16px', color: 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
                   />
                 </div>
               )}
 
               <div style={{ marginTop: '2rem', display: 'flex', gap: '12px' }}>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="add-btn"
-                  style={{ flex: 2, justifyContent: 'center', height: '50px' }}
-                >
-                  {isSubmitting ? <Loader2 className="animate-spin" /> : (drawerMode === 'add' ? 'Create User' : 'Update User')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDrawerMode(null)}
-                  style={{ flex: 1, background: 'var(--glass-hover)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
+                {drawerMode !== 'view' ? (
+                  <>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="add-btn"
+                      style={{ flex: 2, justifyContent: 'center', height: '50px' }}
+                    >
+                      {isSubmitting ? <Loader2 className="animate-spin" /> : (drawerMode === 'add' ? 'Create User' : 'Update User')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDrawerMode(null)}
+                      style={{ flex: 1, background: 'var(--glass-hover)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px', cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setDrawerMode(null)}
+                    className="add-btn"
+                    style={{ flex: 1, justifyContent: 'center', height: '50px' }}
+                  >
+                    Close Profile
+                  </button>
+                )}
               </div>
             </form>
           </div>

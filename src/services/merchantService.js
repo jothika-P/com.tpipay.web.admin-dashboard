@@ -7,7 +7,7 @@ import api from "./api";
 export const searchMerchants = async (payload) => {
   try {
     const res = await api.post("merchants/search", payload);
-    return res.data; // Expected { content: [...], totalElements: 100 }
+    return res.data;
   } catch (error) {
     console.error("searchMerchants error:", error);
     throw error.response?.data?.message || "Failed to fetch merchants";
@@ -16,7 +16,6 @@ export const searchMerchants = async (payload) => {
 
 /**
  * ➕ CREATE / UPDATE MERCHANT
- * payload: { legal_name, business_name, email, contact_number, operation: "create" | "update" }
  */
 export const upsertMerchant = async (data) => {
   try {
@@ -38,5 +37,42 @@ export const deleteMerchant = async (id) => {
   } catch (error) {
     console.error("deleteMerchant error:", error);
     throw error.response?.data?.message || "Failed to delete merchant";
+  }
+};
+
+/**
+ * 📄 GET KYC DOCUMENTS for a merchant
+ * GET /kyc/{kycId}/documents
+ */
+export const getKycDocuments = async (kycId) => {
+  try {
+    const res = await api.get(`kyc/${kycId}/documents`);
+    return res.data;
+  } catch (error) {
+    console.error("getKycDocuments error:", error);
+    throw error.response?.data?.message || "Failed to fetch KYC documents";
+  }
+};
+
+/**
+ * 📦 DOWNLOAD ALL KYC DOCUMENTS as ZIP
+ * GET /kyc/{kycId}/documents/download-zip
+ */
+export const downloadKycZip = async (kycId) => {
+  try {
+    const res = await api.get(`kyc/${kycId}/documents/download-zip`, {
+      responseType: "blob",
+    });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `kyc_documents_${kycId}.zip`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("downloadKycZip error:", error);
+    throw error.response?.data?.message || "Failed to download ZIP";
   }
 };
