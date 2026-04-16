@@ -2,6 +2,7 @@ import api from "./api";
 
 /**
  * 🔍 FETCH PROVIDER CREDENTIALS for a merchant
+ * GET /merchant-provider-credentials/{merchantId}
  */
 export const getProviderCredentials = async (merchantId) => {
   try {
@@ -14,20 +15,36 @@ export const getProviderCredentials = async (merchantId) => {
 };
 
 /**
- * ➕ CREATE / UPDATE PROVIDER CREDENTIAL
+ * ➕ CREATE PROVIDER CREDENTIAL
+ * POST /merchant-provider-credentials
  */
-export const upsertProviderCredential = async (data) => {
+export const createProviderCredential = async (data) => {
   try {
-    const res = await api.post("merchant-provider-credentials/upsert", data);
+    const res = await api.post("merchant-provider-credentials", data);
     return res.data;
   } catch (error) {
-    console.error("upsertProviderCredential error:", error);
-    throw error.response?.data?.message || "Failed to save credential";
+    console.error("createProviderCredential error:", error);
+    throw error.response?.data?.message || "Failed to create credential";
+  }
+};
+
+/**
+ * 📝 UPDATE PROVIDER CREDENTIAL
+ * PUT /merchant-provider-credentials/{id}
+ */
+export const updateProviderCredential = async (id, data) => {
+  try {
+    const res = await api.put(`merchant-provider-credentials/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.error("updateProviderCredential error:", error);
+    throw error.response?.data?.message || "Failed to update credential";
   }
 };
 
 /**
  * ❌ DELETE PROVIDER CREDENTIAL
+ * DELETE /merchant-provider-credentials/{id}
  */
 export const deleteProviderCredential = async (id) => {
   try {

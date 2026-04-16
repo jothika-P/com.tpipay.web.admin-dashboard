@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Building2, ArrowLeft, Loader2, Mail, Phone, Calendar, ShieldCheck, ExternalLink, Globe, FileText, Download, Eye, EyeOff, Plus, Trash2, Settings, AlertCircle } from "lucide-react";
 import { searchMerchants } from "../services/merchantService";
 import { getKycByMerchant, getDocuments, downloadZip } from "../services/kycService";
-import { getProviderCredentials, upsertProviderCredential, deleteProviderCredential } from "../services/providerService";
+import { getProviderCredentials, createProviderCredential, updateProviderCredential, deleteProviderCredential } from "../services/providerService";
 
 export default function MerchantDetails() {
   const { id } = useParams();
@@ -35,6 +35,7 @@ export default function MerchantDetails() {
     environment: "TESTING",
     status: "ACTIVE"
   });
+  const [editingCredId, setEditingCredId] = useState(null);
   const [submittingCred, setSubmittingCred] = useState(false);
   const [visibleKeys, setVisibleKeys] = useState({}); // { [id_field]: boolean }
 
@@ -170,8 +171,23 @@ export default function MerchantDetails() {
     }
     setSubmittingCred(true);
     try {
-      await upsertProviderCredential({ ...newCred, merchant_id: id });
+      const payload = {
+        merchantId: parseInt(id),
+        provider: newCred.provider,
+        key: newCred.key,
+        salt: newCred.salt,
+        environment: newCred.environment,
+        status: newCred.status
+      };
+
+      if (editingCredId) {
+        await updateProviderCredential(editingCredId, payload);
+      } else {
+        await createProviderCredential(payload);
+      }
+
       setIsAddingCred(false);
+      setEditingCredId(null);
       setNewCred({ provider: "EASEBUZZ", key: "", salt: "", environment: "TESTING", status: "ACTIVE" });
       // Refresh list
       const res = await getProviderCredentials(id);
@@ -181,6 +197,18 @@ export default function MerchantDetails() {
     } finally {
       setSubmittingCred(false);
     }
+  };
+
+  const handleEditCred = (cred) => {
+    setNewCred({
+      provider: cred.provider,
+      key: cred.key,
+      salt: cred.salt,
+      environment: cred.environment,
+      status: cred.status
+    });
+    setEditingCredId(cred.id);
+    setIsAddingCred(true);
   };
 
   const handleDeleteCred = async (credId) => {
@@ -370,7 +398,7 @@ export default function MerchantDetails() {
             background: 'rgba(15, 23, 42, 0.4)', borderRadius: '16px', padding: '24px', marginBottom: '24px',
             border: '1px solid rgba(139, 92, 246, 0.2)', animation: 'slideDown 0.3s ease-out'
           }}>
-            <h4 style={{ margin: '0 0 20px 0', fontSize: '16px' }}>Configure New Provider</h4>
+            <h4 style={{ margin: '0 0 20px 0', fontSize: '16px' }}>{editingCredId ? "Update Provider Details" : "Configure New Provider"}</h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>Payment Provider</label>
@@ -380,9 +408,6 @@ export default function MerchantDetails() {
                   style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-dark)', border: '1px solid var(--glass-border)', color: 'white' }}
                 >
                   <option value="EASEBUZZ">Easebuzz</option>
-                  <option value="RAZORPAY">Razorpay</option>
-                  <option value="CASHFREE">Cashfree</option>
-                  <option value="PHONEPE">PhonePe</option>
                 </select>
               </div>
               <div>
@@ -416,6 +441,17 @@ export default function MerchantDetails() {
                   style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-dark)', border: '1px solid var(--glass-border)', color: 'white' }}
                 />
               </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>Status</label>
+                <select
+                  value={newCred.status}
+                  onChange={(e) => setNewCred({ ...newCred, status: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-dark)', border: '1px solid var(--glass-border)', color: 'white' }}
+                >
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="INACTIVE">INACTIVE</option>
+                </select>
+              </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
               <button
@@ -424,10 +460,10 @@ export default function MerchantDetails() {
                 className="gradient-btn"
                 style={{ padding: '10px 24px', borderRadius: '10px', fontSize: '14px' }}
               >
-                {submittingCred ? "Saving..." : "Save Credentials"}
+                {submittingCred ? "Saving..." : editingCredId ? "Update Credential" : "Save Credentials"}
               </button>
               <button
-                onClick={() => setIsAddingCred(false)}
+                onClick={() => { setIsAddingCred(false); setEditingCredId(null); }}
                 style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'white', padding: '10px 24px', borderRadius: '10px', cursor: 'pointer' }}
               >
                 Cancel
@@ -477,12 +513,20 @@ export default function MerchantDetails() {
                       {cred.status}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteCred(cred.id)}
-                    style={{ background: 'rgba(247, 37, 133, 0.1)', border: 'none', color: 'var(--danger)', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={() => handleEditCred(cred)}
+                      style={{ background: 'rgba(59, 130, 246, 0.1)', border: 'none', color: '#60a5fa', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                      <Plus size={16} /> {/* Reusing Plus for Edit or just use text/other icon */}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCred(cred.id)}
+                      style={{ background: 'rgba(247, 37, 133, 0.1)', border: 'none', color: 'var(--danger)', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="api-grid" style={{ gap: '12px' }}>
