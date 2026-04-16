@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Building2, ArrowLeft, Loader2, Mail, Phone, Calendar, ShieldCheck, ExternalLink, Globe, FileText, Download, Eye, EyeOff } from "lucide-react";
+import { Building2, ArrowLeft, Loader2, Mail, Phone, Calendar, ShieldCheck, ExternalLink, Globe, FileText, Download, Eye, EyeOff, Trash2 } from "lucide-react";
 import { searchMerchants } from "../services/merchantService";
 import { getKycByMerchant, getDocuments, downloadZip } from "../services/kycService";
+import {
+  getMerchantProviderCredentials,
+  createMerchantProviderCredential,
+  updateMerchantProviderCredential,
+  deleteMerchantProviderCredential
+} from "../services/credentialService";
 
 export default function MerchantDetails() {
   const { id } = useParams();
@@ -15,10 +21,14 @@ export default function MerchantDetails() {
   const [docsLoading, setDocsLoading] = useState(false);
   const [zipLoading, setZipLoading] = useState(false);
 
-  const [showLiveKey, setShowLiveKey] = useState(false);
-  const [showLiveSalt, setShowLiveSalt] = useState(false);
-  const [showTestKey, setShowTestKey] = useState(false);
-  const [showTestSalt, setShowTestSalt] = useState(false);
+  const [credentials, setCredentials] = useState([]);
+  const [credsLoading, setCredsLoading] = useState(false);
+  const [isAddingCreds, setIsAddingCreds] = useState(false);
+  const [newCreds, setNewCreds] = useState({ provider: "EASEBUZZ", key: "", salt: "" });
+
+  // Missing State Variables Fix
+  const [showLiveKey, setShowLiveKey] = useState(null);
+  const [showLiveSalt, setShowLiveSalt] = useState(null);
   const [editField, setEditField] = useState(null);
   const [tempValue, setTempValue] = useState("");
   const [copiedField, setCopiedField] = useState(null);
@@ -45,9 +55,52 @@ export default function MerchantDetails() {
     setTimeout(() => setCopiedField(null), 1500);
   };
 
-  const handleSave = (field) => {
-    console.log("Saved:", field, tempValue);
-    setEditField(null);
+  const handleSave = async (id, provider, field) => {
+    try {
+      console.log("Saving the field {}", provider);
+      const cred = credentials.find(c => c.id === id);
+      const updatedData = {
+        ...cred,
+        [field === "liveKey" ? "key" : "salt"]: tempValue,
+        merchantId: merchant.id
+      };
+
+      await updateMerchantProviderCredential(id, updatedData);
+
+      setCredentials(prev => prev.map(c => c.id === id ? { ...c, [field === "liveKey" ? "key" : "salt"]: tempValue } : c));
+      setEditField(null);
+    } catch (err) {
+      alert("Failed to update credential: " + err);
+    }
+  };
+
+  const handleCreateCreds = async () => {
+    if (!newCreds.key || !newCreds.salt) {
+      alert("Please provide both Key and Salt");
+      return;
+    }
+    try {
+      const payload = {
+        ...newCreds,
+        merchantId: merchant.id
+      };
+      const created = await createMerchantProviderCredential(payload);
+      setCredentials(prev => [...prev, created]);
+      setIsAddingCreds(false);
+      setNewCreds({ provider: "EASEBUZZ", key: "", salt: "" });
+    } catch (err) {
+      alert("Failed to create credential: " + err);
+    }
+  };
+
+  const handleDeleteCreds = async (id) => {
+    if (!window.confirm("Are you sure you want to delete these credentials?")) return;
+    try {
+      await deleteMerchantProviderCredential(id);
+      setCredentials(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      alert("Failed to delete credential: " + err);
+    }
   };
 
   const handleRedirectToKyc = async () => {
@@ -57,7 +110,7 @@ export default function MerchantDetails() {
       // Support nested data or direct response
       const kycData = kycRes?.data || kycRes;
       const kycId = kycData?.kyc_id || kycData?.id || (Array.isArray(kycData) ? kycData[0]?.kyc_id || kycData[0]?.id : null);
-      
+
       if (kycId) {
         navigate(`/kyc/documents/${kycId}`);
       } else {
@@ -116,6 +169,17 @@ export default function MerchantDetails() {
             console.warn("Could not fetch KYC documents:", e);
           } finally {
             setDocsLoading(false);
+          }
+
+          // Fetch Merchant Provider Credentials
+          setCredsLoading(true);
+          try {
+            const creds = await getMerchantProviderCredentials(m.id);
+            setCredentials(creds || []);
+          } catch (e) {
+            console.warn("Could not fetch provider credentials:", e);
+          } finally {
+            setCredsLoading(false);
           }
         } else {
           setError("Merchant not found");
@@ -283,106 +347,218 @@ export default function MerchantDetails() {
         </button>
       </div>
 
-      {/* ✅ API CREDENTIALS — Easebuzz only, data from backend */}
+      {/* ✅ API CREDENTIALS SECTION */}
       {(merchant.status === "APPROVED" || merchant.kyc_stage === "APPROVED" || true) && (
-        <div className="glass-card" style={{ marginTop: "32px" }}>
-          <div className="section-header" style={{ marginBottom: "20px" }}>
-            <h3>🔑 API Credentials</h3>
+        <div style={{ marginTop: "48px" }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "24px" }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <ShieldCheck size={24} style={{ color: 'var(--secondary)' }} /> 
+                API Credentials
+              </h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0 34px' }}>
+                Securely manage provider-specific keys and secrets.
+              </p>
+            </div>
+            {!isAddingCreds && (
+              <button 
+                className="gradient-btn" 
+                style={{ padding: '10px 20px', fontSize: '14px', borderRadius: '12px' }}
+                onClick={() => setIsAddingCreds(true)}
+              >
+                + Add Provider
+              </button>
+            )}
           </div>
 
-          {/* EASEBUZZ LABEL */}
-          <div style={{ marginBottom: "20px" }}>
-            <label>Payment Gateway</label>
-            <div style={{
-              display: 'inline-block', padding: '8px 18px', borderRadius: '10px',
-              border: '1px solid rgba(139, 92, 246, 0.3)', background: 'rgba(15, 23, 42, 0.9)',
-              color: '#e2e8f0', fontSize: '14px', fontWeight: '600'
-            }}>
-              Easebuzz
+          {credsLoading ? (
+            <div className="glass-card" style={{ padding: '40px', textAlign: 'center' }}>
+              <Loader2 className="animate-spin" size={32} style={{ color: 'var(--primary)', margin: '0 auto' }} />
+              <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Fetching credentials...</p>
             </div>
-          </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              {/* ADD NEW CREDENTIAL FORM */}
+              {isAddingCreds && (
+                <div className="glass-card" style={{ 
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                  padding: '24px',
+                  border: '1px solid var(--secondary)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Register New Provider</h4>
+                    <button onClick={() => setIsAddingCreds(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', alignItems: 'end' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Payment Provider</label>
+                      <select 
+                        value={newCreds.provider} 
+                        onChange={(e) => setNewCreds({...newCreds, provider: e.target.value})}
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid var(--glass-border)', color: 'white', padding: '12px', borderRadius: '10px' }}
+                      >
+                        <option value="EASEBUZZ">Easebuzz</option>
+                        <option value="RAZORPAY">Razorpay</option>
+                        <option value="CASHFREE">Cashfree</option>
+                        <option value="PAYU">PayU</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Live Key</label>
+                      <input 
+                        type="text" 
+                        value={newCreds.key} 
+                        onChange={(e) => setNewCreds({...newCreds, key: e.target.value})}
+                        placeholder="e.g. 12345ABCDE"
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid var(--glass-border)', color: 'white', padding: '12px', borderRadius: '10px' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Live Salt</label>
+                      <input 
+                        type="text" 
+                        value={newCreds.salt} 
+                        onChange={(e) => setNewCreds({...newCreds, salt: e.target.value})}
+                        placeholder="e.g. salt_98765"
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid var(--glass-border)', color: 'white', padding: '12px', borderRadius: '10px' }}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+                    <button className="add-btn" style={{ background: 'none', border: '1px solid var(--glass-border)', color: 'var(--text-muted)' }} onClick={() => setIsAddingCreds(false)}>Cancel</button>
+                    <button className="gradient-btn" style={{ padding: '10px 30px' }} onClick={handleCreateCreds}>Save Credentials</button>
+                  </div>
+                </div>
+              )}
 
-          <div className="api-grid">
-            {/* LIVE KEY */}
-            <div className="api-row">
-              <label>Live Key</label>
-              <input
-                type={showLiveKey ? "text" : "password"}
-                value={editField === "liveKey" ? tempValue : merchant?.live_key || ""}
-                readOnly={editField !== "liveKey"}
-                onChange={(e) => setTempValue(e.target.value)}
-              />
-              <button onClick={() => setShowLiveKey(!showLiveKey)}>{showLiveKey ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-              <button onClick={() => handleCopy(merchant?.live_key, "liveKey")}>
-                {copiedField === "liveKey" ? "✅" : "📋"}
-              </button>
-              {editField === "liveKey" ? (
-                <button onClick={() => handleSave("liveKey")}>💾</button>
+              {/* LIST OF CREDENTIALS */}
+              {credentials.length === 0 && !isAddingCreds ? (
+                <div className="glass-card" style={{ padding: '60px', textAlign: 'center', opacity: 0.6 }}>
+                  <div style={{ marginBottom: '16px', color: 'var(--text-muted)' }}>
+                    <ShieldCheck size={48} style={{ margin: '0 auto' }} />
+                  </div>
+                  <p>No provider credentials have been configured yet.</p>
+                  <button onClick={() => setIsAddingCreds(true)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline', marginTop: '8px' }}>
+                    Configure your first payment gateway
+                  </button>
+                </div>
               ) : (
-                <button onClick={() => { setEditField("liveKey"); setTempValue(merchant?.live_key || ""); }}>✏</button>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '20px' }}>
+                  {credentials.map((cred) => (
+                    <div key={cred.id} className="glass-card" style={{ 
+                      padding: '24px', 
+                      position: 'relative',
+                      overflow: 'hidden',
+                      transition: 'transform 0.2s ease',
+                      border: '1px solid var(--glass-border)'
+                    }}>
+                      {/* Provider Header */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ 
+                            width: '40px', height: '40px', borderRadius: '10px', 
+                            background: 'var(--secondary)', color: 'white',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '18px', fontWeight: 'bold'
+                          }}>
+                            {cred.provider.charAt(0)}
+                          </div>
+                          <div>
+                            <h4 style={{ margin: 0, fontSize: '15px' }}>{cred.provider}</h4>
+                            <span style={{ fontSize: '11px', color: 'var(--success)', fontWeight: 'bold', letterSpacing: '0.5px' }}>● LIVE MODE</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteCreds(cred.id)}
+                          style={{ 
+                            background: 'rgba(239, 68, 68, 0.1)', border: 'none', 
+                            color: '#ef4444', padding: '8px', 
+                            borderRadius: '8px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '4px'
+                          }}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+
+                      {/* Fields */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        
+                        {/* KEY ROW */}
+                        <div style={{ background: 'rgba(15, 23, 42, 0.3)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Secret Key</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button onClick={() => setShowLiveKey(showLiveKey === cred.id ? null : cred.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {showLiveKey === cred.id ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                              <button onClick={() => handleCopy(cred.key, `key-${cred.id}`)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {copiedField === `key-${cred.id}` ? "✅" : <FileText size={14} />}
+                              </button>
+                              {editField === `key-${cred.id}` ? (
+                                <button onClick={() => handleSave(cred.id, cred.provider, "liveKey")} style={{ background: 'none', border: 'none', color: 'var(--success)', cursor: 'pointer' }}>💾</button>
+                              ) : (
+                                <button onClick={() => { setEditField(`key-${cred.id}`); setTempValue(cred.key || ""); }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✏</button>
+                              )}
+                            </div>
+                          </div>
+                          {editField === `key-${cred.id}` ? (
+                            <input 
+                              autoFocus
+                              value={tempValue} 
+                              onChange={(e) => setTempValue(e.target.value)}
+                              style={{ width: '100%', background: 'transparent', border: 'none', color: 'white', fontSize: '14px', outline: 'none' }}
+                            />
+                          ) : (
+                            <div style={{ fontSize: '14px', color: 'white', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                              {showLiveKey === cred.id ? cred.key : '••••••••••••••••'}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* SALT ROW */}
+                        <div style={{ background: 'rgba(15, 23, 42, 0.3)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Salt</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button onClick={() => setShowLiveSalt(showLiveSalt === cred.id ? null : cred.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {showLiveSalt === cred.id ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                              <button onClick={() => handleCopy(cred.salt, `salt-${cred.id}`)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {copiedField === `salt-${cred.id}` ? "✅" : <FileText size={14} />}
+                              </button>
+                              {editField === `salt-${cred.id}` ? (
+                                <button onClick={() => handleSave(cred.id, cred.provider, "liveSalt")} style={{ background: 'none', border: 'none', color: 'var(--success)', cursor: 'pointer' }}>💾</button>
+                              ) : (
+                                <button onClick={() => { setEditField(`salt-${cred.id}`); setTempValue(cred.salt || ""); }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✏</button>
+                              )}
+                            </div>
+                          </div>
+                          {editField === `salt-${cred.id}` ? (
+                            <input 
+                              autoFocus
+                              value={tempValue} 
+                              onChange={(e) => setTempValue(e.target.value)}
+                              style={{ width: '100%', background: 'transparent', border: 'none', color: 'white', fontSize: '14px', outline: 'none' }}
+                            />
+                          ) : (
+                            <div style={{ fontSize: '14px', color: 'white', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                              {showLiveSalt === cred.id ? cred.salt : '••••••••••••••••'}
+                            </div>
+                          )}
+                        </div>
+
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
-
-            {/* LIVE SALT */}
-            <div className="api-row">
-              <label>Live Salt</label>
-              <input
-                type={showLiveSalt ? "text" : "password"}
-                value={editField === "liveSalt" ? tempValue : merchant?.live_salt || ""}
-                readOnly={editField !== "liveSalt"}
-                onChange={(e) => setTempValue(e.target.value)}
-              />
-              <button onClick={() => setShowLiveSalt(!showLiveSalt)}>{showLiveSalt ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-              <button onClick={() => handleCopy(merchant?.live_salt, "liveSalt")}>
-                {copiedField === "liveSalt" ? "✅" : "📋"}
-              </button>
-              {editField === "liveSalt" ? (
-                <button onClick={() => handleSave("liveSalt")}>💾</button>
-              ) : (
-                <button onClick={() => { setEditField("liveSalt"); setTempValue(merchant?.live_salt || ""); }}>✏</button>
-              )}
-            </div>
-
-            {/* TEST KEY */}
-            <div className="api-row">
-              <label>Test Key</label>
-              <input
-                type={showTestKey ? "text" : "password"}
-                value={editField === "testKey" ? tempValue : merchant?.test_key || ""}
-                readOnly={editField !== "testKey"}
-                onChange={(e) => setTempValue(e.target.value)}
-              />
-              <button onClick={() => setShowTestKey(!showTestKey)}>{showTestKey ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-              <button onClick={() => handleCopy(merchant?.test_key, "testKey")}>
-                {copiedField === "testKey" ? "✅" : "📋"}
-              </button>
-              {editField === "testKey" ? (
-                <button onClick={() => handleSave("testKey")}>💾</button>
-              ) : (
-                <button onClick={() => { setEditField("testKey"); setTempValue(merchant?.test_key || ""); }}>✏</button>
-              )}
-            </div>
-
-            {/* TEST SALT */}
-            <div className="api-row">
-              <label>Test Salt</label>
-              <input
-                type={showTestSalt ? "text" : "password"}
-                value={editField === "testSalt" ? tempValue : merchant?.test_salt || ""}
-                readOnly={editField !== "testSalt"}
-                onChange={(e) => setTempValue(e.target.value)}
-              />
-              <button onClick={() => setShowTestSalt(!showTestSalt)}>{showTestSalt ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-              <button onClick={() => handleCopy(merchant?.test_salt, "testSalt")}>
-                {copiedField === "testSalt" ? "✅" : "📋"}
-              </button>
-              {editField === "testSalt" ? (
-                <button onClick={() => handleSave("testSalt")}>💾</button>
-              ) : (
-                <button onClick={() => { setEditField("testSalt"); setTempValue(merchant?.test_salt || ""); }}>✏</button>
-              )}
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>
