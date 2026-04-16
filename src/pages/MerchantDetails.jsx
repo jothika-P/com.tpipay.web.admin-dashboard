@@ -26,6 +26,13 @@ export default function MerchantDetails() {
   const [isAddingCreds, setIsAddingCreds] = useState(false);
   const [newCreds, setNewCreds] = useState({ provider: "EASEBUZZ", key: "", salt: "" });
 
+  // Missing State Variables Fix
+  const [showLiveKey, setShowLiveKey] = useState(null);
+  const [showLiveSalt, setShowLiveSalt] = useState(null);
+  const [editField, setEditField] = useState(null);
+  const [tempValue, setTempValue] = useState("");
+  const [copiedField, setCopiedField] = useState(null);
+
   const handleCopy = (value, field) => {
     if (!value) return;
     if (navigator.clipboard && window.isSecureContext) {
@@ -340,15 +347,23 @@ export default function MerchantDetails() {
         </button>
       </div>
 
-      {/* ✅ API CREDENTIALS */}
+      {/* ✅ API CREDENTIALS SECTION */}
       {(merchant.status === "APPROVED" || merchant.kyc_stage === "APPROVED" || true) && (
-        <div className="glass-card" style={{ marginTop: "32px" }}>
-          <div className="section-header" style={{ marginBottom: "20px", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0 }}>🔑 API Credentials</h3>
+        <div style={{ marginTop: "48px" }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "24px" }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <ShieldCheck size={24} style={{ color: 'var(--secondary)' }} /> 
+                API Credentials
+              </h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0 34px' }}>
+                Securely manage provider-specific keys and secrets.
+              </p>
+            </div>
             {!isAddingCreds && (
-              <button
-                className="add-btn"
-                style={{ padding: '8px 16px', fontSize: '13px' }}
+              <button 
+                className="gradient-btn" 
+                style={{ padding: '10px 20px', fontSize: '14px', borderRadius: '12px' }}
                 onClick={() => setIsAddingCreds(true)}
               >
                 + Add Provider
@@ -357,22 +372,33 @@ export default function MerchantDetails() {
           </div>
 
           {credsLoading ? (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <Loader2 className="animate-spin" size={24} style={{ color: 'var(--primary)' }} />
+            <div className="glass-card" style={{ padding: '40px', textAlign: 'center' }}>
+              <Loader2 className="animate-spin" size={32} style={{ color: 'var(--primary)', margin: '0 auto' }} />
+              <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Fetching credentials...</p>
             </div>
           ) : (
-            <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
               {/* ADD NEW CREDENTIAL FORM */}
               {isAddingCreds && (
-                <div className="glass-card" style={{ marginBottom: '24px', background: 'rgba(255,255,255,0.03)', border: '1px dashed var(--glass-border)' }}>
-                  <h4 style={{ margin: '0 0 16px 0', fontSize: '14px' }}>Add Provider Credentials</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      <label style={{ width: '100px', fontSize: '13px' }}>Provider</label>
-                      <select
-                        value={newCreds.provider}
-                        onChange={(e) => setNewCreds({ ...newCreds, provider: e.target.value })}
-                        style={{ background: 'var(--bg-card)', border: '1px solid var(--glass-border)', color: 'var(--text)', padding: '6px 12px', borderRadius: '8px', flex: 1 }}
+                <div className="glass-card" style={{ 
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                  padding: '24px',
+                  border: '1px solid var(--secondary)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Register New Provider</h4>
+                    <button onClick={() => setIsAddingCreds(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', alignItems: 'end' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Payment Provider</label>
+                      <select 
+                        value={newCreds.provider} 
+                        onChange={(e) => setNewCreds({...newCreds, provider: e.target.value})}
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid var(--glass-border)', color: 'white', padding: '12px', borderRadius: '10px' }}
                       >
                         <option value="EASEBUZZ">Easebuzz</option>
                         <option value="RAZORPAY">Razorpay</option>
@@ -380,110 +406,158 @@ export default function MerchantDetails() {
                         <option value="PAYU">PayU</option>
                       </select>
                     </div>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      <label style={{ width: '100px', fontSize: '13px' }}>Live Key</label>
-                      <input
-                        type="text"
-                        value={newCreds.key}
-                        onChange={(e) => setNewCreds({ ...newCreds, key: e.target.value })}
-                        placeholder="Enter live key"
-                        style={{ flex: 1 }}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Live Key</label>
+                      <input 
+                        type="text" 
+                        value={newCreds.key} 
+                        onChange={(e) => setNewCreds({...newCreds, key: e.target.value})}
+                        placeholder="e.g. 12345ABCDE"
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid var(--glass-border)', color: 'white', padding: '12px', borderRadius: '10px' }}
                       />
                     </div>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      <label style={{ width: '100px', fontSize: '13px' }}>Live Salt</label>
-                      <input
-                        type="text"
-                        value={newCreds.salt}
-                        onChange={(e) => setNewCreds({ ...newCreds, salt: e.target.value })}
-                        placeholder="Enter live salt"
-                        style={{ flex: 1 }}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Live Salt</label>
+                      <input 
+                        type="text" 
+                        value={newCreds.salt} 
+                        onChange={(e) => setNewCreds({...newCreds, salt: e.target.value})}
+                        placeholder="e.g. salt_98765"
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid var(--glass-border)', color: 'white', padding: '12px', borderRadius: '10px' }}
                       />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                      <button className="add-btn" style={{ background: 'none', border: '1px solid var(--glass-border)' }} onClick={() => setIsAddingCreds(false)}>Cancel</button>
-                      <button className="add-btn" onClick={handleCreateCreds}>Create Credentials</button>
-                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+                    <button className="add-btn" style={{ background: 'none', border: '1px solid var(--glass-border)', color: 'var(--text-muted)' }} onClick={() => setIsAddingCreds(false)}>Cancel</button>
+                    <button className="gradient-btn" style={{ padding: '10px 30px' }} onClick={handleCreateCreds}>Save Credentials</button>
                   </div>
                 </div>
               )}
 
               {/* LIST OF CREDENTIALS */}
               {credentials.length === 0 && !isAddingCreds ? (
-                <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
-                  <p>No provider credentials configured yet.</p>
+                <div className="glass-card" style={{ padding: '60px', textAlign: 'center', opacity: 0.6 }}>
+                  <div style={{ marginBottom: '16px', color: 'var(--text-muted)' }}>
+                    <ShieldCheck size={48} style={{ margin: '0 auto' }} />
+                  </div>
+                  <p>No provider credentials have been configured yet.</p>
+                  <button onClick={() => setIsAddingCreds(true)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline', marginTop: '8px' }}>
+                    Configure your first payment gateway
+                  </button>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '20px' }}>
                   {credentials.map((cred) => (
-                    <div key={cred.id} className="credential-box" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--glass-border)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "16px" }}>
-                        <div style={{
-                          display: 'inline-block', padding: '6px 14px', borderRadius: '8px',
-                          border: '1px solid rgba(139, 92, 246, 0.3)', background: 'rgba(15, 23, 42, 0.9)',
-                          color: '#e2e8f0', fontSize: '13px', fontWeight: '600'
-                        }}>
-                          {cred.provider}
+                    <div key={cred.id} className="glass-card" style={{ 
+                      padding: '24px', 
+                      position: 'relative',
+                      overflow: 'hidden',
+                      transition: 'transform 0.2s ease',
+                      border: '1px solid var(--glass-border)'
+                    }}>
+                      {/* Provider Header */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ 
+                            width: '40px', height: '40px', borderRadius: '10px', 
+                            background: 'var(--secondary)', color: 'white',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '18px', fontWeight: 'bold'
+                          }}>
+                            {cred.provider.charAt(0)}
+                          </div>
+                          <div>
+                            <h4 style={{ margin: 0, fontSize: '15px' }}>{cred.provider}</h4>
+                            <span style={{ fontSize: '11px', color: 'var(--success)', fontWeight: 'bold', letterSpacing: '0.5px' }}>● LIVE MODE</span>
+                          </div>
                         </div>
-                        <button
+                        <button 
                           onClick={() => handleDeleteCreds(cred.id)}
-                          style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', opacity: 0.6 }}
-                          title="Delete Credentials"
+                          style={{ 
+                            background: 'rgba(239, 68, 68, 0.1)', border: 'none', 
+                            color: '#ef4444', padding: '8px', 
+                            borderRadius: '8px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '4px'
+                          }}
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
 
-                      <div className="api-grid">
-                        {/* LIVE KEY */}
-                        <div className="api-row">
-                          <label>Live Key</label>
-                          <input
-                            type={showLiveKey === cred.id ? "text" : "password"}
-                            value={editField === `key-${cred.id}` ? tempValue : cred.key || ""}
-                            readOnly={editField !== `key-${cred.id}`}
-                            onChange={(e) => setTempValue(e.target.value)}
-                          />
-                          <button onClick={() => setShowLiveKey(showLiveKey === cred.id ? null : cred.id)}>
-                            {showLiveKey === cred.id ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </button>
-                          <button onClick={() => handleCopy(cred.key, `key-${cred.id}`)}>
-                            {copiedField === `key-${cred.id}` ? "✅" : "📋"}
-                          </button>
+                      {/* Fields */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        
+                        {/* KEY ROW */}
+                        <div style={{ background: 'rgba(15, 23, 42, 0.3)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Secret Key</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button onClick={() => setShowLiveKey(showLiveKey === cred.id ? null : cred.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {showLiveKey === cred.id ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                              <button onClick={() => handleCopy(cred.key, `key-${cred.id}`)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {copiedField === `key-${cred.id}` ? "✅" : <FileText size={14} />}
+                              </button>
+                              {editField === `key-${cred.id}` ? (
+                                <button onClick={() => handleSave(cred.id, cred.provider, "liveKey")} style={{ background: 'none', border: 'none', color: 'var(--success)', cursor: 'pointer' }}>💾</button>
+                              ) : (
+                                <button onClick={() => { setEditField(`key-${cred.id}`); setTempValue(cred.key || ""); }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✏</button>
+                              )}
+                            </div>
+                          </div>
                           {editField === `key-${cred.id}` ? (
-                            <button onClick={() => handleSave(cred.id, cred.provider, "liveKey")}>💾</button>
+                            <input 
+                              autoFocus
+                              value={tempValue} 
+                              onChange={(e) => setTempValue(e.target.value)}
+                              style={{ width: '100%', background: 'transparent', border: 'none', color: 'white', fontSize: '14px', outline: 'none' }}
+                            />
                           ) : (
-                            <button onClick={() => { setEditField(`key-${cred.id}`); setTempValue(cred.key || ""); }}>✏</button>
+                            <div style={{ fontSize: '14px', color: 'white', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                              {showLiveKey === cred.id ? cred.key : '••••••••••••••••'}
+                            </div>
                           )}
                         </div>
 
-                        {/* LIVE SALT */}
-                        <div className="api-row">
-                          <label>Live Salt</label>
-                          <input
-                            type={showLiveSalt === cred.id ? "text" : "password"}
-                            value={editField === `salt-${cred.id}` ? tempValue : cred.salt || ""}
-                            readOnly={editField !== `salt-${cred.id}`}
-                            onChange={(e) => setTempValue(e.target.value)}
-                          />
-                          <button onClick={() => setShowLiveSalt(showLiveSalt === cred.id ? null : cred.id)}>
-                            {showLiveSalt === cred.id ? <EyeOff size={16} /> : <Eye size={16} />}
-                          </button>
-                          <button onClick={() => handleCopy(cred.salt, `salt-${cred.id}`)}>
-                            {copiedField === `salt-${cred.id}` ? "✅" : "📋"}
-                          </button>
+                        {/* SALT ROW */}
+                        <div style={{ background: 'rgba(15, 23, 42, 0.3)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Salt</label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button onClick={() => setShowLiveSalt(showLiveSalt === cred.id ? null : cred.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {showLiveSalt === cred.id ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                              <button onClick={() => handleCopy(cred.salt, `salt-${cred.id}`)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                                {copiedField === `salt-${cred.id}` ? "✅" : <FileText size={14} />}
+                              </button>
+                              {editField === `salt-${cred.id}` ? (
+                                <button onClick={() => handleSave(cred.id, cred.provider, "liveSalt")} style={{ background: 'none', border: 'none', color: 'var(--success)', cursor: 'pointer' }}>💾</button>
+                              ) : (
+                                <button onClick={() => { setEditField(`salt-${cred.id}`); setTempValue(cred.salt || ""); }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>✏</button>
+                              )}
+                            </div>
+                          </div>
                           {editField === `salt-${cred.id}` ? (
-                            <button onClick={() => handleSave(cred.id, cred.provider, "liveSalt")}>💾</button>
+                            <input 
+                              autoFocus
+                              value={tempValue} 
+                              onChange={(e) => setTempValue(e.target.value)}
+                              style={{ width: '100%', background: 'transparent', border: 'none', color: 'white', fontSize: '14px', outline: 'none' }}
+                            />
                           ) : (
-                            <button onClick={() => { setEditField(`salt-${cred.id}`); setTempValue(cred.salt || ""); }}>✏</button>
+                            <div style={{ fontSize: '14px', color: 'white', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                              {showLiveSalt === cred.id ? cred.salt : '••••••••••••••••'}
+                            </div>
                           )}
                         </div>
+
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       )}
