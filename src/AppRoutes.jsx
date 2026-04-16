@@ -36,7 +36,7 @@ export default function AppRoutes() {
       <Route
         path="/merchants"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "BACKEND_AGENT"]}>
             <MainLayout>
               <Merchants />
             </MainLayout>
@@ -68,7 +68,7 @@ export default function AppRoutes() {
       <Route
         path="/kyc"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM", "BACKEND_AGENT"]}>
             <MainLayout>
               <KYC />
             </MainLayout>
@@ -78,7 +78,7 @@ export default function AppRoutes() {
       <Route
         path="/kyc/details/:id"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM", "BACKEND_AGENT"]}>
             <MainLayout>
               <KycDetails />
             </MainLayout>
@@ -88,7 +88,7 @@ export default function AppRoutes() {
       <Route
         path="/kyc/documents/:id"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "RELATIONSHIP_MANAGER", "LEGAL_TEAM", "BACKEND_AGENT"]}>
             <MainLayout>
               <KycDocuments />
             </MainLayout>

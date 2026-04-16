@@ -18,6 +18,7 @@ export default function MainLayout({ children }) {
   const isAdmin = role === "ADMIN";
   const isRM = role === "RELATIONSHIP_MANAGER";
   const isLegal = role === "LEGAL_TEAM";
+  const isBackendAgent = role === "BACKEND_AGENT";
 
   /* ================= MENU ================= */
   const menu =
@@ -38,12 +39,18 @@ export default function MainLayout({ children }) {
             { label: "Dashboard", path: "/analytics", icon: <Activity size={20} /> },
             { label: "KYC Portal", path: "/kyc", icon: <Shield size={20} /> },
           ]
-          : [];
+          : isBackendAgent
+            ? [
+              { label: "Merchants", path: "/merchants", icon: <Building2 size={20} /> },
+              { label: "KYC Portal", path: "/kyc", icon: <Shield size={20} /> },
+            ]
+            : [];
 
   const getTitle = () => {
     if (isAdmin) return "Admin Dashboard";
     if (isRM) return "RM Dashboard";
     if (isLegal) return "Legal Dashboard";
+    if (isBackendAgent) return "Agent Dashboard";
     return "Dashboard";
   };
 

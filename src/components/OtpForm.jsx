@@ -56,8 +56,20 @@ const OtpForm = ({ otpType, goToLogin }) => {
     sessionStorage.setItem("user", JSON.stringify(res.user));
     localStorage.setItem("role", res.user.role);
 
-    console.log("LOGIN SUCCESS! Navigating to Merchant Dashboard.");
-    navigate("/users", { replace: true });
+    const role = res.user.role;
+    console.log("LOGIN SUCCESS! Navigating based on role:", role);
+
+    if (role === "ADMIN") {
+      navigate("/analytics", { replace: true });
+    } else if (role === "RELATIONSHIP_MANAGER") {
+      navigate("/kyc", { replace: true });
+    } else if (role === "LEGAL_TEAM") {
+      navigate("/kyc", { replace: true }); // or analytics if preferred
+    } else if (role === "BACKEND_AGENT") {
+      navigate("/kyc", { replace: true });
+    } else {
+      navigate("/", { replace: true });
+    }
   };
 
   return (

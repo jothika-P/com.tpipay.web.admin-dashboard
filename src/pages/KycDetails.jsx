@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, Building2, MapPin, Calendar, ShieldCheck, Mail, Phone, Info, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, Building2, MapPin, Calendar, ShieldCheck, Mail, Phone, Info, CheckCircle2, AlertCircle, Clock, Lock, Eye, EyeOff } from "lucide-react";
 import { getKycById } from "../services/kycService";
 import { searchMerchants } from "../services/merchantService";
 
@@ -12,6 +12,7 @@ export default function KycDetails() {
   const [merchant, setMerchant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showPsw, setShowPsw] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -149,6 +150,26 @@ export default function KycDetails() {
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>Contact Registry</p>
                   <p style={{ margin: 0, fontSize: '15px', fontWeight: '500' }}>{kyc.contact_number || kyc.phone || "—"}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                <div style={{ padding: '8px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+                   <Lock size={14} style={{ color: 'var(--text-muted)' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>Merchant Password</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <p style={{ margin: 0, fontSize: '15px', fontWeight: '500' }}>
+                      {showPsw ? (merchant?.password || merchant?.psw || "—") : "••••••••"}
+                    </p>
+                    <button 
+                      onClick={() => setShowPsw(!showPsw)} 
+                      style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                    >
+                      {showPsw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -86,6 +86,10 @@ const fetchKycData = useCallback(async () => {
       payload.status = "LEGAL_TEAM_PENDING"; // 👈 only legal stage
     }
 
+    if (role === "BACKEND_AGENT") {
+      payload.status = "CPV_PENDING"; // 👈 only CPV stage
+    }
+
     const res = await searchMerchants(payload);
 
     const merchants = res?.content || res || [];

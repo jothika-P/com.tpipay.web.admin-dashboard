@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, ArrowLeft, Loader2, Save, Mail, Phone, Info } from "lucide-react";
+import { Building2, ArrowLeft, Loader2, Save, Mail, Phone, Info, Lock, Eye, EyeOff } from "lucide-react";
 import { upsertMerchant } from "../services/merchantService";
 
 export default function CreateMerchant() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPsw, setShowPsw] = useState(false);
 
   const [formData, setFormData] = useState({
     legal_name: "",
     business_name: "",
     email: "",
     contact_number: "",
+    password: "",
   });
 
   const handleSubmit = async (e) => {
@@ -93,6 +95,30 @@ export default function CreateMerchant() {
             </div>
           </div>
 
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+               Set Password
+            </label>
+            <div style={{ position: 'relative' }}>
+              <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input
+                required
+                type={showPsw ? "text" : "password"}
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                style={{ width: '100%', padding: '14px 45px 14px 45px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPsw(!showPsw)}
+                style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+              >
+                {showPsw ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
           <div style={{ gridColumn: '1 / 2' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
                Business Email
@@ -125,6 +151,8 @@ export default function CreateMerchant() {
               />
             </div>
           </div>
+
+
 
           <div style={{ gridColumn: '1 / -1', marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
             <button 
