@@ -314,12 +314,12 @@ export default function Users() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Role</label>
-                  <select
-                    disabled={drawerMode === 'view'}
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
-                  >
+                    <select
+                      disabled={drawerMode === 'view'}
+                      value={formData.role}
+                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                      style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'black', borderRadius: '12px', background: 'white', border: '1px solid #ccc' }}
+                    >
                     <option value="ADMIN">ADMIN</option>
                     <option value="RELATIONSHIP_MANAGER">RM</option>
                     <option value="LEGAL_TEAM">LEGAL TEAM</option>
@@ -333,7 +333,7 @@ export default function Users() {
                       disabled={drawerMode === 'view'}
                       value={formData.isActive ? "Active" : "Inactive"}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.value === "Active" })}
-                      style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                      style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'black', borderRadius: '12px', background: 'white', border: '1px solid #ccc' }}
                     >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>

@@ -150,7 +150,7 @@
 }
 
 /* ========================= INPUTS ========================= */
-.auth-box input, .auth-box select {
+.auth-box input {
   width: 100%;
   background: transparent;
   border: none;
@@ -170,6 +170,22 @@
   background-size: 18px 18px;
 }
 
+.auth-box select {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px 34px 12px 12px;
+  font-size: 14px;
+  color: #000000;
+  outline: none;
+  -webkit-appearance: auto; /* Show arrow for white background */
+  box-shadow: none;
+  transition: border-color 0.25s ease;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 25px;
+}
+
 /* Person icon for Username */
 .auth-box input[placeholder="Username"],
 .auth-box input[placeholder="Full Name"] {
@@ -186,7 +202,7 @@
   font-size: 14px;
 }
 
-.auth-box select option { background: #0b0b1a; color: #fff; }
+.auth-box select option { background: #ffffff; color: #000000; }
 
 .auth-box input:focus, .auth-box select:focus {
   border-bottom: 2px solid #a855f7;

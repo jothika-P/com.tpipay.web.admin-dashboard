@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "http://13.201.32.101:8080/$1"
+            "destination": "https://api.tpipay.ai/$1"
         }
     ]
 }

@@ -81,7 +81,7 @@ export default function CreateMerchant() {
 
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
-               Brand / Trading Name
+               Name
             </label>
             <div style={{ position: 'relative' }}>
               <Info size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />

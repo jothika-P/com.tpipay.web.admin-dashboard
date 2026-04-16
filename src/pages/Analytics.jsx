@@ -113,11 +113,11 @@ export default function Analytics() {
           <select 
             value={selectedRM} 
             onChange={(e) => handleRMChange(e.target.value)}
-            style={{ flex: 1, maxWidth: '300px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', padding: '8px 12px', borderRadius: '10px', height: '42px', outline: 'none' }}
+            style={{ flex: 1, maxWidth: '300px', background: '#ffffff', border: '1px solid #ccc', color: '#000000', padding: '8px 12px', borderRadius: '10px', height: '42px', outline: 'none' }}
           >
-            <option value="" style={{ background: '#111', color: 'white' }}>All Platform Data</option>
+            <option value="" style={{ background: '#ffffff', color: '#000000' }}>All Platform Data</option>
             {rmList.map(rm => (
-              <option key={rm.id} value={rm.id} style={{ background: '#111', color: 'white' }}>{rm.name || rm.email}</option>
+              <option key={rm.id} value={rm.id} style={{ background: '#ffffff', color: '#000000' }}>{rm.name || rm.email}</option>
             ))}
           </select>
         </div>

@@ -15,7 +15,7 @@ export default function Merchants() {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
-  const perPage = 10;
+  const perPage = 1000;
 
   const fetchMerchants = useCallback(async () => {
     setLoading(true);
@@ -27,7 +27,7 @@ export default function Merchants() {
         limit: perPage,
         offset: (page - 1) * perPage,
       };
-      
+
       const res = await searchMerchants(payload);
       // Backend usually returns { content: [], totalElements: 12 } or just the array
       const data = res?.content || res || [];

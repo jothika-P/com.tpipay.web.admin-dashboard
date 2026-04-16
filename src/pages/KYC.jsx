@@ -103,6 +103,17 @@ const fetchKycData = useCallback(async () => {
   }
 }, [searchBusiness, searchRM, rmFilter]);
 
+// --- AUTO REFRESH LOGIC ---
+useEffect(() => {
+  fetchKycData(); // Initial fetch on mount or filter change
+
+  const intervalId = setInterval(() => {
+    fetchKycData();
+  }, 30000); // Refresh every 30 seconds
+
+  return () => clearInterval(intervalId); // Cleanup on unmount
+}, [fetchKycData]);
+
 
   /* ================= ACTIONS ================= */
   const updateStatus = async (kycId, status) => {
@@ -266,7 +277,6 @@ const fetchKycData = useCallback(async () => {
           <select 
             value={rmFilter} 
             onChange={(e) => setRmFilter(e.target.value)}
-            style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
           >
             <option value="All">All Statuses</option>
             <option value="PENDING">Pending</option>
