@@ -81,6 +81,7 @@ export default function Partners() {
       email: partner.email,
       role: "PARTNER",
       isActive: partner.isActive,
+      partnerReferralCode: partner.partnerReferralCode,
     });
     setDrawerMode("edit");
   };
@@ -92,6 +93,7 @@ export default function Partners() {
       email: partner.email,
       role: "PARTNER",
       isActive: partner.isActive,
+      partnerReferralCode: partner.partnerReferralCode,
     });
     setDrawerMode("view");
   };
@@ -166,6 +168,7 @@ export default function Partners() {
             <thead>
               <tr>
                 <th>Partner Detail</th>
+                <th>Referral Code</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
@@ -173,14 +176,14 @@ export default function Partners() {
             <tbody>
               {loading && partners.length === 0 ? (
                 <tr>
-                  <td colSpan="3" style={{ textAlign: 'center', padding: '100px 0' }}>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '100px 0' }}>
                     <Loader2 className="animate-spin" size={40} style={{ color: 'var(--primary)', margin: '0 auto' }} />
                     <p style={{ marginTop: '10px', color: 'var(--text-secondary)' }}>Fetching platform partners...</p>
                   </td>
                 </tr>
               ) : partners.length === 0 ? (
                 <tr>
-                  <td colSpan="3" style={{ textAlign: 'center', padding: '100px 0', color: 'var(--text-muted)' }}>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '100px 0', color: 'var(--text-muted)' }}>
                     No partners found matching your search.
                   </td>
                 </tr>
@@ -197,6 +200,11 @@ export default function Partners() {
                           <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0' }}>{p.email}</p>
                         </div>
                       </div>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <code style={{ background: 'var(--glass-hover)', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', color: 'var(--primary)', fontWeight: 'bold' }}>
+                        {p.partnerReferralCode || "N/A"}
+                      </code>
                     </td>
                     <td>
                       <span className={`status ${p.isActive ? 'approved' : 'rejected'}`} style={{ textTransform: 'uppercase', fontSize: '11px' }}>
@@ -282,6 +290,17 @@ export default function Partners() {
                   style={{ width: '100%', padding: '12px 16px', color: drawerMode === 'view' ? 'var(--text-muted)' : 'white', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
                 />
               </div>
+
+              {(drawerMode === 'view' || drawerMode === 'edit') && (
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Referral Code</label>
+                  <input
+                    readOnly
+                    value={formData.partnerReferralCode || "N/A"}
+                    style={{ width: '100%', padding: '12px 16px', color: 'var(--primary)', fontWeight: 'bold', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
+                  />
+                </div>
+              )}
 
               <div style={{ marginBottom: '15px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>Status</label>

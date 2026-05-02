@@ -47,10 +47,8 @@ export const verifyOtp = async (sessionId, otp) => {
 
     const { token, user } = response.data;
 
-    // ✅ NORMALIZE ROLE
+    // ✅ No normalization needed, use full role names
     let role = user.role?.toUpperCase() || "";
-    if (role === "RELATIONSHIP_MANAGER") role = "RM";
-    if (role === "LEGAL_TEAM") role = "LEGALTEAM";
 
     // ✅ Store auth details in localStorage
     localStorage.setItem("token", token);

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { User, Menu, Bell, X, Shield, Activity, Users, LogOut, Building2, Handshake, Ticket } from "lucide-react";
+import { searchUsers } from "../services/userService";
 import logo from "../assets/logo.png";
 
 export default function MainLayout({ children }) {
@@ -69,6 +70,29 @@ export default function MainLayout({ children }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const fetchPartnerCode = async () => {
+      if (isPartner && userData?.id) {
+        try {
+          const res = await searchUsers({
+            filters: [{ key: "id", value: userData.id, operator: "=" }],
+            limit: 1,
+            offset: 0
+          });
+          const userDetails = res?.content?.[0] || res?.[0];
+          console.log(userDetails);
+          console.log(userDetails.partnerReferralCode);
+          if (userDetails?.partnerReferralCode) {
+            setReferralCode(userDetails.partnerReferralCode);
+          }
+        } catch (err) {
+          console.error("Failed to fetch partner code", err);
+        }
+      }
+    };
+    fetchPartnerCode();
+  }, [isPartner, userData?.id]);
+
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
@@ -103,17 +127,17 @@ export default function MainLayout({ children }) {
                 <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Referral Code</label>
                 <div style={{ position: 'relative' }}>
                   <Ticket size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     readOnly
                     placeholder="Partner Code"
-                    value={referralCode || userData?.referralCode || "PART-7721"}
-                    style={{ 
-                      width: '100%', 
-                      background: 'rgba(255,255,255,0.05)', 
-                      border: '1px solid var(--glass-border)', 
-                      borderRadius: '8px', 
-                      padding: '8px 8px 8px 32px', 
+                    value={referralCode || userData?.partnerReferralCode}
+                    style={{
+                      width: '100%',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid var(--glass-border)',
+                      borderRadius: '8px',
+                      padding: '8px 8px 8px 32px',
                       fontSize: '12px',
                       color: 'var(--primary)',
                       fontWeight: 'bold',
@@ -123,7 +147,7 @@ export default function MainLayout({ children }) {
                 </div>
               </div>
             )}
-            
+
             <button className="dash-link logout-btn" onClick={handleLogout} style={{ width: '100%', background: 'none', border: 'none' }}>
               <LogOut size={20} />
               <span className="link-text">Logout</span>

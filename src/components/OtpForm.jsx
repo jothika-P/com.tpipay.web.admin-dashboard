@@ -52,8 +52,8 @@ const OtpForm = ({ otpType, goToLogin }) => {
     console.log("LOGIN SUCCESS!");
 
     // ✅ STORE TOKEN + USER
-    sessionStorage.setItem("token", res.token);
-    sessionStorage.setItem("user", JSON.stringify(res.user));
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("user", JSON.stringify(res.user));
     localStorage.setItem("role", res.user.role);
 
     const role = res.user.role;
@@ -67,6 +67,8 @@ const OtpForm = ({ otpType, goToLogin }) => {
       navigate("/kyc", { replace: true }); // or analytics if preferred
     } else if (role === "BACKEND_AGENT") {
       navigate("/kyc", { replace: true });
+    } else if (role === "PARTNER") {
+      navigate("/analytics", { replace: true });
     } else {
       navigate("/", { replace: true });
     }
