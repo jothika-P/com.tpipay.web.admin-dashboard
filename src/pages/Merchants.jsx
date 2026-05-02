@@ -15,7 +15,7 @@ export default function Merchants() {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
-  const perPage = 1000;
+  const perPage = 25;
 
   const fetchMerchants = useCallback(async () => {
     setLoading(true);
@@ -32,7 +32,7 @@ export default function Merchants() {
       // Backend usually returns { content: [], totalElements: 12 } or just the array
       const data = res?.content || res || [];
       setMerchants(data);
-      setTotalElements(res?.totalElements || data.length);
+      setTotalElements(res?.totalElements || (data.length === perPage ? (page * perPage + 1) : (page - 1) * perPage + data.length));
     } catch (err) {
       setError(err?.toString() || "Failed to fetch merchants");
     } finally {
@@ -160,7 +160,12 @@ export default function Merchants() {
               <button disabled={page === 1} onClick={() => setPage(page - 1)} className="action-btn" style={{ background: page === 1 ? 'transparent' : 'var(--glass-hover)', opacity: page === 1 ? 0.5 : 1 }}>
                 <ChevronLeft size={20} />
               </button>
-              <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="action-btn" style={{ background: page >= totalPages ? 'transparent' : 'var(--glass-hover)', opacity: page >= totalPages ? 0.5 : 1 }}>
+              <button 
+                disabled={merchants.length < perPage && totalElements <= page * perPage} 
+                onClick={() => setPage(page + 1)} 
+                className="action-btn" 
+                style={{ background: (merchants.length < perPage && totalElements <= page * perPage) ? 'transparent' : 'var(--glass-hover)', opacity: (merchants.length < perPage && totalElements <= page * perPage) ? 0.5 : 1 }}
+              >
                 <ChevronRight size={20} />
               </button>
             </div>

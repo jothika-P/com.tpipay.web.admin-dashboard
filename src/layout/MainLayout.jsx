@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Menu, Bell, X, Shield, Activity, Users, LogOut, Building2 } from "lucide-react";
+import { User, Menu, Bell, X, Shield, Activity, Users, LogOut, Building2, Handshake, Ticket } from "lucide-react";
 import logo from "../assets/logo.png";
 
 export default function MainLayout({ children }) {
@@ -9,6 +9,7 @@ export default function MainLayout({ children }) {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [open, setOpen] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
   const dropdownRef = useRef();
 
   const role = (localStorage.getItem("role") || "").toUpperCase();
@@ -17,6 +18,7 @@ export default function MainLayout({ children }) {
 
   const isAdmin = role === "ADMIN";
   const isRM = role === "RELATIONSHIP_MANAGER";
+  const isPartner = role === "PARTNER";
   const isLegal = role === "LEGAL_TEAM";
   const isBackendAgent = role === "BACKEND_AGENT";
 
@@ -26,11 +28,13 @@ export default function MainLayout({ children }) {
       ? [
         { label: "Dashboard", path: "/analytics", icon: <Activity size={20} /> },
         { label: "Merchants", path: "/merchants", icon: <Building2 size={20} /> },
+        { label: "Partners", path: "/partners", icon: <Handshake size={20} /> },
         { label: "Users", path: "/users", icon: <Users size={20} /> },
         { label: "KYC Portal", path: "/kyc", icon: <Shield size={20} /> },
       ]
-      : isRM
+      : (isRM || isPartner)
         ? [
+          { label: "Dashboard", path: "/analytics", icon: <Activity size={20} /> },
           { label: "Merchants", path: "/merchants", icon: <Building2 size={20} /> },
           { label: "KYC Portal", path: "/kyc", icon: <Shield size={20} /> }
         ]
@@ -49,6 +53,7 @@ export default function MainLayout({ children }) {
   const getTitle = () => {
     if (isAdmin) return "Admin Dashboard";
     if (isRM) return "RM Dashboard";
+    if (isPartner) return "Partner Dashboard";
     if (isLegal) return "Legal Dashboard";
     if (isBackendAgent) return "Agent Dashboard";
     return "Dashboard";
@@ -93,6 +98,32 @@ export default function MainLayout({ children }) {
           ))}
 
           <div style={{ marginTop: "auto", paddingBottom: "20px" }}>
+            {isPartner && (
+              <div style={{ padding: '0 12px 16px' }}>
+                <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Referral Code</label>
+                <div style={{ position: 'relative' }}>
+                  <Ticket size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                  <input 
+                    type="text" 
+                    readOnly
+                    placeholder="Partner Code"
+                    value={referralCode || userData?.referralCode || "PART-7721"}
+                    style={{ 
+                      width: '100%', 
+                      background: 'rgba(255,255,255,0.05)', 
+                      border: '1px solid var(--glass-border)', 
+                      borderRadius: '8px', 
+                      padding: '8px 8px 8px 32px', 
+                      fontSize: '12px',
+                      color: 'var(--primary)',
+                      fontWeight: 'bold',
+                      cursor: 'default'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            
             <button className="dash-link logout-btn" onClick={handleLogout} style={{ width: '100%', background: 'none', border: 'none' }}>
               <LogOut size={20} />
               <span className="link-text">Logout</span>

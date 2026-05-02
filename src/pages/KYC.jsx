@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Upload, Download, PlusCircle, FileText, Check, X, Loader2, MessageSquare, Search, Filter } from "lucide-react";
+import { Eye, Upload, Download, PlusCircle, FileText, Check, X, Loader2, MessageSquare, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   approveKyc,
@@ -21,6 +21,9 @@ export default function Kyc() {
   const [searchBusiness, setSearchBusiness] = useState("");
   const [searchRM, setSearchRM] = useState("");
   const [rmFilter, setRmFilter] = useState("All"); // mapped to status in payload as per request
+  const [page, setPage] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const perPage = 25;
 
   // --- UI STATE ---
   const [drawer, setDrawer] = useState(null); // 'add-note' | 'view-notes'
@@ -74,11 +77,13 @@ const fetchKycData = useCallback(async () => {
 
     let payload = {
       query: searchBusiness,
-      status: rmFilter !== "All" ? rmFilter : null
+      status: rmFilter !== "All" ? rmFilter : null,
+      limit: perPage,
+      offset: (page - 1) * perPage
     };
 
     // ✅ ROLE BASED FILTERING
-    if (role === "RELATIONSHIP_MANAGER") {
+    if (role === "RELATIONSHIP_MANAGER" || role === "PARTNER") {
       payload.rm = user?.name || user?.username; // 👈 only own merchants
     }
 
@@ -95,13 +100,14 @@ const fetchKycData = useCallback(async () => {
     const merchants = res?.content || res || [];
 
     setData(merchants);
+    setTotalElements(res?.totalElements || (merchants.length === perPage ? (page * perPage + 1) : (page - 1) * perPage + merchants.length));
   } catch (err) {
     console.error("KYC FETCH ERROR:", err);
     setError(err?.toString() || "Failed to fetch KYC records");
   } finally {
     setLoading(false);
   }
-}, [searchBusiness, searchRM, rmFilter]);
+}, [searchBusiness, searchRM, rmFilter, page]);
 
 // --- AUTO REFRESH LOGIC ---
 useEffect(() => {
@@ -362,6 +368,31 @@ useEffect(() => {
               )}
             </tbody>
           </table>
+
+          {/* PAGINATION */}
+          <div className="pagination" style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '20px', marginTop: '10px' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+              Showing {(page - 1) * perPage + 1} to {Math.min(page * perPage, totalElements)} of {totalElements} records
+            </span>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                disabled={page === 1} 
+                onClick={() => setPage(page - 1)} 
+                className="action-btn" 
+                style={{ background: page === 1 ? 'transparent' : 'var(--glass-hover)', opacity: page === 1 ? 0.5 : 1 }}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button 
+                disabled={data.length < perPage && totalElements <= page * perPage} 
+                onClick={() => setPage(page + 1)} 
+                className="action-btn" 
+                style={{ background: (data.length < perPage && totalElements <= page * perPage) ? 'transparent' : 'var(--glass-hover)', opacity: (data.length < perPage && totalElements <= page * perPage) ? 0.5 : 1 }}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

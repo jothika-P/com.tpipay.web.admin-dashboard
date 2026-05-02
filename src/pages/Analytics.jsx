@@ -93,6 +93,10 @@ export default function Analytics() {
     }
   };
 
+  const role = (localStorage.getItem("role") || "").toUpperCase();
+  const isPartner = role === "PARTNER";
+  const isRM = role === "RELATIONSHIP_MANAGER";
+
   /* ================= UI ================= */
   return (
     <div className="analytics-container animate-fade-in">
@@ -105,23 +109,25 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* FILTER BAR */}
-      <div className="glass-card" style={{ marginBottom: '2rem', padding: '20px 24px', display: 'flex', gap: '20px', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-          <Filter size={18} style={{ color: 'var(--primary)' }} />
-          <span style={{ fontSize: '14px', fontWeight: '600' }}>Filter by RM:</span>
-          <select 
-            value={selectedRM} 
-            onChange={(e) => handleRMChange(e.target.value)}
-            style={{ flex: 1, maxWidth: '300px', background: '#ffffff', border: '1px solid #ccc', color: '#000000', padding: '8px 12px', borderRadius: '10px', height: '42px', outline: 'none' }}
-          >
-            <option value="" style={{ background: '#ffffff', color: '#000000' }}>All Platform Data</option>
-            {rmList.map(rm => (
-              <option key={rm.id} value={rm.id} style={{ background: '#ffffff', color: '#000000' }}>{rm.name || rm.email}</option>
-            ))}
-          </select>
+      {/* FILTER BAR - Hidden for Partners and RMs */}
+      {(!isPartner && !isRM) && (
+        <div className="glass-card" style={{ marginBottom: '2rem', padding: '20px 24px', display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+            <Filter size={18} style={{ color: 'var(--primary)' }} />
+            <span style={{ fontSize: '14px', fontWeight: '600' }}>Filter by RM:</span>
+            <select 
+              value={selectedRM} 
+              onChange={(e) => handleRMChange(e.target.value)}
+              style={{ flex: 1, maxWidth: '300px', background: '#ffffff', border: '1px solid #ccc', color: '#000000', padding: '8px 12px', borderRadius: '10px', height: '42px', outline: 'none' }}
+            >
+              <option value="" style={{ background: '#ffffff', color: '#000000' }}>All Platform Data</option>
+              {rmList.map(rm => (
+                <option key={rm.id} value={rm.id} style={{ background: '#ffffff', color: '#000000' }}>{rm.name || rm.email}</option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
 
       {error && (
         <div className="glass-card" style={{ borderColor: 'var(--danger)', color: 'var(--danger)', marginBottom: '20px' }}>
